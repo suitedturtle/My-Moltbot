@@ -1,0 +1,40 @@
+{
+  "next_id": 6,
+  "memories": [
+    {
+      "id": 1,
+      "timestamp": "2024-02-08T10:00:00Z",
+      "key": "user_name",
+      "value": "Alex",
+      "context": "introduction"
+    },
+    {
+      "id": 2,
+      "timestamp": "2024-02-08T10:05:00Z",
+      "key": "preferred_speed",
+      "value": 75,
+      "context": "calibration"
+    },
+    {
+      "id": 3,
+      "timestamp": "2024-02-08T10:10:00Z",
+      "key": "last_error",
+      "value": "Gripper jammed on block 3",
+      "context": "error_log"
+    },
+    {
+      "id": 4,
+      "timestamp": "2024-02-08T10:15:00Z",
+      "key": "favorite_block_color",
+      "value": "blue",
+      "context": "user_preference"
+    },
+    {
+      "id": 5,
+      "timestamp": "2024-02-08T10:20:00Z",
+      "key": "successful_grips",
+      "value": 42,
+      "context": "performance"
+    }
+  ]
+}
