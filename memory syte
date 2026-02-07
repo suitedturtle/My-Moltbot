@@ -1,0 +1,49 @@
+Clawbot Memory Schema Design
+============================
+
+Schema Version: 1.0
+Created: [Today's Date]
+Author: [Your Name]
+
+FIELD DEFINITIONS:
+------------------
+1. id (integer, auto-incrementing)
+   - Unique identifier for each memory
+   - Starts at 1, increments by 1 each new memory
+
+2. timestamp (string, ISO 8601 format)
+   - Format: "YYYY-MM-DDTHH:MM:SSZ"
+   - Example: "2024-02-08T14:30:45Z"
+   - Always in UTC timezone
+
+3. key (string, snake_case)
+   - Descriptive identifier for the memory
+   - Rules: lowercase, underscores, no spaces
+   - Examples: "user_favorite_color", "last_error_message"
+
+4. value (any JSON-compatible type)
+   - Can be: string, number, boolean, array, or object
+   - Examples: "blue", 42, true, ["item1", "item2"]
+
+5. context (string)
+   - Category or situation when memory was created
+   - Predefined contexts:
+     * "user_preference" - User settings/choices
+     * "system_calibration" - Calibration data
+     * "error_log" - Error records
+     * "operation_log" - Normal operation data
+     * "conversation" - Chat/voice interactions
+
+STORAGE FORMAT:
+---------------
+- File: clawbot_memory.json
+- Location: project_root/memory_system/
+- Structure:
+  {
+    "next_id": 4,
+    "memories": [
+      {memory object 1},
+      {memory object 2},
+      ...
+    ]
+  }
