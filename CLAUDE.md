@@ -51,6 +51,16 @@ Analyzes robot measurement accuracy. Default expected positions: `[0, 25, 50, 75
 
 Computes: absolute errors, z-scores (normalized by precision), movement pattern detection, and a calibration recommendation.
 
+## Development Philosophy
+
+Always execute the next most logical step toward a solid, working foundation. Build in this order of priority:
+1. Complete existing incomplete code before adding new features
+2. Add a runnable entrypoint so the project can actually execute
+3. Implement the memory read/write layer so state can persist
+4. Add dependencies file and any scaffolding needed to run the project
+
+When in doubt, ask "what does this project need to actually work end-to-end?" and do that next.
+
 ## Development Notes
 
 - No test runner, linter, or build tooling is configured yet — the project is in early stages.
