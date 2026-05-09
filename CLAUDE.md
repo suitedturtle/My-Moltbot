@@ -131,6 +131,7 @@ When in doubt, ask "what does this project need to actually work end-to-end?" an
 | GET | `/memories?context=<ctx>` | JSON array of memory entries, optionally filtered |
 | POST | `/subscribe` | Add email subscriber; sends welcome email |
 | POST | `/unsubscribe` | Remove email subscriber |
+| GET | `/about` | About page (site purpose, who it's for, subscribe CTA) |
 | GET | `/sitemap.xml` | Auto-generated XML sitemap (SEO) |
 | GET | `/robots.txt` | robots.txt (SEO) |
 
@@ -138,6 +139,7 @@ When in doubt, ask "what does this project need to actually work end-to-end?" an
 
 - `web/data/jobs.json` — 30 California robotics/automation job listings (source of truth for /jobs)
 - `web/templates/jobs.html` — Jobs listing page with search, region/type filters, AdSense, subscribe sidebar
+- `web/templates/about.html` — About page (who it's for, how it works, subscribe CTA)
 - `web/templates/index.html` — Dashboard
 - `memory_system/email_subscribers.json` — Subscriber list (gitignored, auto-created at runtime)
 
@@ -153,8 +155,9 @@ Publisher ID: `ca-pub-6496918064862756`. Auto-ads script is in both template `<h
 - [x] Meta description + Open Graph tags on jobs.html
 - [x] JSON-LD JobPosting structured data on jobs.html (enables Google Jobs integration)
 
-## Roadmap (next steps after SEO)
+## Roadmap (next steps)
 
-1. Update weekly digest email to include top job listings (gives subscribers a reason to click back)
-2. About page (`/about`) — explains site purpose, good for AdSense review
-3. Expand job listings: add more categories (software, healthcare, logistics) or an admin route to add jobs without editing JSON
+1. ✅ Weekly digest email includes top 5 job listings
+2. ✅ About page (`/about`) — explains site purpose, good for AdSense review
+3. Expand job listings: add software, healthcare, and logistics categories to broaden the audience
+4. Submit sitemap to Google Search Console once site is live at calcojobs.com
