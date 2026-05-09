@@ -51,6 +51,7 @@ GET <key>                            # retrieve most recent entry for key
 LIST MEMORIES [context]              # list all memories, optionally filtered
 FORGET <key>                         # delete all entries for key
 RECALL                               # show last saved analysis
+HISTORY                              # show calibration run history with trend
 ```
 
 ### Science Analysis Command (`src/commands/science_analysis.py`)
@@ -72,7 +73,7 @@ The dashboard (`web/app.py` + `web/templates/index.html`) provides:
 - A live memory table with context filtering
 - A status panel showing memory count, last analysis date, and last error
 
-Routes: `GET /` (dashboard), `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error).
+Routes: `GET /` (dashboard), `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error), `GET /history` (JSON array of calibration runs).
 
 ## Running Tests
 

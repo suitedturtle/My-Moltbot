@@ -46,6 +46,19 @@ def get_status():
     })
 
 
+@app.route("/history")
+def get_history():
+    entries = memory.recall_all("calibration_history")
+    return jsonify([
+        {
+            "timestamp": e["timestamp"],
+            "date": e["timestamp"][:10],
+            **e["value"],
+        }
+        for e in entries
+    ])
+
+
 @app.route("/memories")
 def get_memories():
     context = request.args.get("context")

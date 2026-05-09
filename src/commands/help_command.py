@@ -23,6 +23,9 @@ FORGET <key>
 RECALL
     Show the last saved analysis report.
 
+HISTORY
+    Show a summary table of all past calibration runs with error trends.
+
 HELP
     Show this message.
 """.strip()
