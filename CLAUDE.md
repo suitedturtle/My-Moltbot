@@ -72,7 +72,7 @@ The dashboard (`web/app.py` + `web/templates/index.html`) provides:
 - A live memory table with context filtering
 - A status panel showing memory count, last analysis date, and last error
 
-Routes: `GET /` (dashboard), `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array).
+Routes: `GET /` (dashboard), `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error).
 
 ## Running Tests
 

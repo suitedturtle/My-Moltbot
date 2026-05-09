@@ -166,33 +166,34 @@
       <div class="status-grid">
         <div class="stat">
           <div class="label">Memories</div>
-          <div class="value">{{ memories | length }}</div>
+          <div class="value" id="stat-count">{{ memories | length }}</div>
         </div>
         <div class="stat">
           <div class="label">Last Analysis</div>
-          <div class="value" style="font-size:0.85rem;color:#{{ 'a78bfa' if last_analysis else '334155' }}">
+          <div class="value" id="stat-date" style="font-size:0.85rem;color:#{{ 'a78bfa' if last_analysis else '334155' }}">
             {{ last_analysis.timestamp[:10] if last_analysis else '—' }}
           </div>
         </div>
       </div>
+      <div id="stat-error">
       {% if last_error %}
-      <div class="alert warn">
-        <strong>Last Error</strong><br>
-        {{ last_error.value.error }}
-      </div>
+      <div class="alert warn"><strong>Last Error</strong><br>{{ last_error.value.error }}</div>
       {% else %}
       <div class="alert ok">No errors logged</div>
       {% endif %}
+      </div>
     </div>
 
     <!-- Last analysis summary -->
     <div class="card">
       <h2>Last Analysis</h2>
+      <div id="last-analysis-wrap">
       {% if last_analysis %}
       <div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">{{ last_analysis.value.result }}</div>
       {% else %}
       <div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>
       {% endif %}
+      </div>
     </div>
 
   </div>
@@ -232,6 +233,7 @@
         out.className = 'output';
         out.textContent = data.result;
         refreshMemory();
+        refreshStatus();
       }
     } catch (e) {
       out.className = 'output error';
@@ -284,6 +286,27 @@
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     refreshMemory(context);
+  }
+
+  async function refreshStatus() {
+    const res  = await fetch('/status');
+    const data = await res.json();
+
+    document.getElementById('stat-count').textContent = data.memory_count;
+
+    const dateEl = document.getElementById('stat-date');
+    dateEl.textContent = data.last_analysis_date || '—';
+    dateEl.style.color = data.last_analysis_date ? '#a78bfa' : '#334155';
+
+    const errEl = document.getElementById('stat-error');
+    errEl.innerHTML = data.last_error
+      ? `<div class="alert warn"><strong>Last Error</strong><br>${escHtml(data.last_error)}</div>`
+      : `<div class="alert ok">No errors logged</div>`;
+
+    const analysisWrap = document.getElementById('last-analysis-wrap');
+    analysisWrap.innerHTML = data.last_analysis_result
+      ? `<div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">${escHtml(data.last_analysis_result)}</div>`
+      : `<div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>`;
   }
 </script>
 
