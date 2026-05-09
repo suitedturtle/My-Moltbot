@@ -41,9 +41,9 @@ memory.all_memories()        # full list
 - `timestamp`: ISO 8601, UTC (set automatically)
 - `context`: one of `user_preference`, `system_calibration`, `error_log`, `operation_log`, `conversation`
 
-Each ANALYZE run automatically saves to memory under key `last_analysis`. Type `RECALL` in the bot to retrieve it.
+Each ANALYZE run automatically saves to memory under key `last_analysis`. Errors are caught, displayed gracefully, and logged to memory under key `last_error` with context `error_log`. Type `RECALL` in the bot to retrieve the last analysis.
 
-**User-facing memory commands** (handled by `src/commands/memory_commands.py`):
+**All commands** (type `HELP` in the bot for the full reference):
 
 ```
 SET <key> = <value> [AS <context>]   # store a value; value can be JSON

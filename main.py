@@ -1,14 +1,16 @@
 import sys
+import traceback
 
 from src import memory
 
 
 COMMAND_ROUTING = [
-    ("ANALYZE",       "ScienceAnalysisCommand"),
-    ("SET",           "SetMemoryCommand"),
-    ("GET",           "GetMemoryCommand"),
-    ("LIST MEMOR",    "ListMemoryCommand"),
-    ("FORGET",        "ForgetMemoryCommand"),
+    ("ANALYZE",    "ScienceAnalysisCommand"),
+    ("SET",        "SetMemoryCommand"),
+    ("GET",        "GetMemoryCommand"),
+    ("LIST MEMOR", "ListMemoryCommand"),
+    ("FORGET",     "ForgetMemoryCommand"),
+    ("HELP",       "HelpCommand"),
 ]
 
 
@@ -29,7 +31,11 @@ class ClawbotCommandRegistry:
             if upper.startswith(prefix):
                 if command_key not in self._commands:
                     return f"Command '{command_key}' is registered but not loaded."
-                result = self._commands[command_key].execute(command_text)
+                try:
+                    result = self._commands[command_key].execute(command_text)
+                except Exception as e:
+                    return self._handle_error(command_text, e)
+
                 if command_key == "ScienceAnalysisCommand":
                     memory.remember(
                         key="last_analysis",
@@ -38,8 +44,9 @@ class ClawbotCommandRegistry:
                     )
                 return result
 
-        available = "ANALYZE, SET, GET, LIST MEMORIES, FORGET, RECALL"
-        return f"Unknown command. Available: {available}"
+        return (
+            "Unknown command. Type HELP to see available commands."
+        )
 
     def _handle_recall(self):
         mem = memory.recall("last_analysis")
@@ -51,6 +58,18 @@ class ClawbotCommandRegistry:
             f"{mem['value']['result']}"
         )
 
+    def _handle_error(self, command_text, exc):
+        error_msg = f"{type(exc).__name__}: {exc}"
+        try:
+            memory.remember(
+                key="last_error",
+                value={"command": command_text, "error": error_msg},
+                context="error_log",
+            )
+        except Exception:
+            pass
+        return f"Error: {error_msg}"
+
     def list_commands(self):
         return list(self._commands)
 
@@ -60,15 +79,16 @@ def build_bot():
 
     from src.commands.science_analysis import setup as setup_science
     from src.commands.memory_commands import setup as setup_memory
+    from src.commands.help_command import setup as setup_help
     setup_science(bot)
     setup_memory(bot)
+    setup_help(bot)
 
     return bot
 
 
 def run_interactive(bot):
-    print("Clawbot ready. Type a command or 'quit' to exit.")
-    print("Commands: ANALYZE, SET, GET, LIST MEMORIES, FORGET, RECALL\n")
+    print("Clawbot ready. Type HELP for available commands or 'quit' to exit.\n")
 
     while True:
         try:
