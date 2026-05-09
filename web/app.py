@@ -10,6 +10,12 @@ from datetime import datetime, timezone
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from flask import Flask, render_template, request, jsonify
+
+JOBS_FILE = os.path.join(os.path.dirname(__file__), "data", "jobs.json")
+
+def _load_jobs():
+    with open(JOBS_FILE) as f:
+        return json.load(f)
 from main import build_bot
 from src import memory
 
@@ -125,6 +131,20 @@ def get_history():
         {"timestamp": e["timestamp"], "date": e["timestamp"][:10], **e["value"]}
         for e in entries
     ])
+
+
+@app.route("/jobs")
+def jobs():
+    all_jobs = _load_jobs()
+    regions  = sorted({j["region"] for j in all_jobs})
+    types    = sorted({j["type"]   for j in all_jobs})
+    return render_template(
+        "jobs.html",
+        jobs=all_jobs,
+        regions=regions,
+        types=types,
+        job_count=len(all_jobs),
+    )
 
 
 @app.route("/memories")
