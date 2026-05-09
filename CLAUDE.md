@@ -43,6 +43,16 @@ memory.all_memories()        # full list
 
 Each ANALYZE run automatically saves to memory under key `last_analysis`. Type `RECALL` in the bot to retrieve it.
 
+**User-facing memory commands** (handled by `src/commands/memory_commands.py`):
+
+```
+SET <key> = <value> [AS <context>]   # store a value; value can be JSON
+GET <key>                            # retrieve most recent entry for key
+LIST MEMORIES [context]              # list all memories, optionally filtered
+FORGET <key>                         # delete all entries for key
+RECALL                               # show last saved analysis
+```
+
 ### Science Analysis Command (`src/commands/science_analysis.py`)
 
 Analyzes robot measurement accuracy. Default expected positions: `[0, 25, 50, 75, 100]` mm. Default precision: `±0.2 mm`. Requires `numpy`.

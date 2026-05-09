@@ -1,7 +1,15 @@
-import os
 import sys
 
 from src import memory
+
+
+COMMAND_ROUTING = [
+    ("ANALYZE",       "ScienceAnalysisCommand"),
+    ("SET",           "SetMemoryCommand"),
+    ("GET",           "GetMemoryCommand"),
+    ("LIST MEMOR",    "ListMemoryCommand"),
+    ("FORGET",        "ForgetMemoryCommand"),
+]
 
 
 class ClawbotCommandRegistry:
@@ -9,32 +17,31 @@ class ClawbotCommandRegistry:
         self._commands = {}
 
     def add_command(self, command):
-        name = type(command).__name__
-        self._commands[name] = command
+        self._commands[type(command).__name__] = command
 
     def execute(self, command_text):
         upper = command_text.strip().upper()
-        if upper.startswith("ANALYZE"):
-            key = "ScienceAnalysisCommand"
-        elif upper.startswith("RECALL"):
-            return self._handle_recall(command_text)
-        else:
-            return f"Unknown command. Available: {', '.join(self._commands)}"
 
-        if key not in self._commands:
-            return f"Command '{key}' is registered but not loaded."
+        if upper.startswith("RECALL"):
+            return self._handle_recall()
 
-        result = self._commands[key].execute(command_text)
+        for prefix, command_key in COMMAND_ROUTING:
+            if upper.startswith(prefix):
+                if command_key not in self._commands:
+                    return f"Command '{command_key}' is registered but not loaded."
+                result = self._commands[command_key].execute(command_text)
+                if command_key == "ScienceAnalysisCommand":
+                    memory.remember(
+                        key="last_analysis",
+                        value={"command": command_text, "result": result},
+                        context="operation_log",
+                    )
+                return result
 
-        memory.remember(
-            key="last_analysis",
-            value={"command": command_text, "result": result},
-            context="operation_log",
-        )
+        available = "ANALYZE, SET, GET, LIST MEMORIES, FORGET, RECALL"
+        return f"Unknown command. Available: {available}"
 
-        return result
-
-    def _handle_recall(self, command_text):
+    def _handle_recall(self):
         mem = memory.recall("last_analysis")
         if not mem:
             return "No previous analysis found in memory."
@@ -52,15 +59,16 @@ def build_bot():
     bot = ClawbotCommandRegistry()
 
     from src.commands.science_analysis import setup as setup_science
+    from src.commands.memory_commands import setup as setup_memory
     setup_science(bot)
+    setup_memory(bot)
 
     return bot
 
 
 def run_interactive(bot):
     print("Clawbot ready. Type a command or 'quit' to exit.")
-    print(f"Loaded commands: {bot.list_commands()}")
-    print("Special: RECALL — show last saved analysis\n")
+    print("Commands: ANALYZE, SET, GET, LIST MEMORIES, FORGET, RECALL\n")
 
     while True:
         try:
