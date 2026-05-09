@@ -84,6 +84,11 @@ def jobs():
     )
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
 @app.route("/robots.txt")
 def robots_txt():
     body = f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n"
@@ -96,8 +101,9 @@ def sitemap_xml():
     today    = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     urls = [
-        {"loc": SITE_URL,          "priority": "1.0", "changefreq": "weekly"},
-        {"loc": f"{SITE_URL}/jobs","priority": "0.9", "changefreq": "weekly"},
+        {"loc": SITE_URL,           "priority": "1.0", "changefreq": "weekly"},
+        {"loc": f"{SITE_URL}/jobs", "priority": "0.9", "changefreq": "weekly"},
+        {"loc": f"{SITE_URL}/about","priority": "0.7", "changefreq": "monthly"},
     ]
     for job in all_jobs:
         urls.append({
