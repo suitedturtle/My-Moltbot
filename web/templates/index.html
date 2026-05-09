@@ -10,15 +10,21 @@
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
 
     header { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 16px 32px; display: flex; align-items: center; gap: 12px; }
-    header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; }
+    header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; flex: 1; }
     header span { font-size: 0.8rem; color: #64748b; }
+    #auth-btn {
+      background: none; border: 1px solid #2d3148; border-radius: 6px; color: #94a3b8;
+      padding: 6px 14px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+    }
+    #auth-btn:hover { border-color: #a78bfa; color: #a78bfa; }
+    #auth-btn.subscriber { border-color: #4ade80; color: #4ade80; }
 
     .layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
 
     .card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 20px; }
     .card h2 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 14px; }
 
-    /* Command input */
+    /* Command terminal */
     .command-form { display: flex; gap: 8px; }
     .command-form input {
       flex: 1; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
@@ -26,6 +32,7 @@
       outline: none; transition: border-color 0.15s;
     }
     .command-form input:focus { border-color: #a78bfa; }
+    .command-form input:disabled { opacity: 0.4; cursor: not-allowed; }
     .command-form button {
       background: #7c3aed; color: #fff; border: none; border-radius: 6px;
       padding: 10px 20px; font-size: 0.9rem; cursor: pointer; transition: background 0.15s;
@@ -41,6 +48,12 @@
     .output.error { color: #f87171; }
     .output.placeholder { color: #334155; }
 
+    .readonly-notice {
+      margin-top: 12px; background: #1e1a3b; border: 1px solid #3730a3; border-radius: 6px;
+      padding: 10px 14px; font-size: 0.82rem; color: #a5b4fc;
+    }
+    .readonly-notice a { color: #a78bfa; cursor: pointer; text-decoration: underline; }
+
     /* Quick commands */
     .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; }
     .quick-btn {
@@ -49,8 +62,9 @@
       transition: all 0.15s; font-family: 'Courier New', monospace;
     }
     .quick-btn:hover { background: #2d3148; color: #e2e8f0; border-color: #a78bfa; }
+    .quick-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
-    /* Status cards */
+    /* Status */
     .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .stat { background: #0f1117; border: 1px solid #2d3148; border-radius: 6px; padding: 12px; }
     .stat .label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -58,7 +72,7 @@
 
     .alert { border-radius: 6px; padding: 10px 14px; font-size: 0.82rem; margin-top: 10px; }
     .alert.warn { background: #431407; border: 1px solid #7c2d12; color: #fca5a5; }
-    .alert.ok { background: #052e16; border: 1px solid #14532d; color: #86efac; }
+    .alert.ok   { background: #052e16; border: 1px solid #14532d; color: #86efac; }
 
     /* Memory table */
     .memory-filter { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -73,24 +87,65 @@
     td { padding: 8px 8px; border-bottom: 1px solid #1e2235; vertical-align: top; word-break: break-word; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #1e2235; }
-    .badge {
-      display: inline-block; border-radius: 3px; padding: 1px 6px; font-size: 0.7rem; font-weight: 500;
-    }
+    .badge { display: inline-block; border-radius: 3px; padding: 1px 6px; font-size: 0.7rem; font-weight: 500; }
     .badge-pref  { background: #1e3a5f; color: #60a5fa; }
     .badge-cal   { background: #1a2e1a; color: #4ade80; }
     .badge-err   { background: #3b0f0f; color: #f87171; }
     .badge-op    { background: #2a1f00; color: #fbbf24; }
     .badge-conv  { background: #1e1a3b; color: #c4b5fd; }
     .badge-other { background: #1e2235; color: #94a3b8; }
-
     .empty { color: #334155; text-align: center; padding: 24px; font-size: 0.85rem; }
+
+    /* Login modal */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px;
+      padding: 28px; width: 360px; max-width: 90vw;
+    }
+    .modal h3 { font-size: 1rem; color: #e2e8f0; margin-bottom: 6px; }
+    .modal p  { font-size: 0.82rem; color: #64748b; margin-bottom: 18px; }
+    .modal input {
+      width: 100%; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
+      color: #e2e8f0; padding: 10px 14px; font-size: 0.9rem; outline: none;
+      transition: border-color 0.15s; margin-bottom: 10px;
+    }
+    .modal input:focus { border-color: #a78bfa; }
+    .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-btns button {
+      border: none; border-radius: 6px; padding: 8px 18px; font-size: 0.85rem; cursor: pointer;
+    }
+    .btn-cancel { background: #1e2235; color: #94a3b8; }
+    .btn-login  { background: #7c3aed; color: #fff; }
+    .btn-login:hover { background: #6d28d9; }
+    .modal-error { color: #f87171; font-size: 0.78rem; margin-bottom: 8px; min-height: 1em; }
   </style>
 </head>
 <body>
 
+<!-- Login modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3>Subscriber Access</h3>
+    <p>Enter your access key to unlock full command access.</p>
+    <input id="key-input" type="password" placeholder="Access key" autocomplete="current-password">
+    <div class="modal-error" id="modal-error"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-login" onclick="doLogin()">Unlock</button>
+    </div>
+  </div>
+</div>
+
 <header>
   <h1>Clawbot Dashboard</h1>
   <span>Robot Control &amp; Monitoring</span>
+  <button id="auth-btn" onclick="handleAuthBtn()">
+    {% if subscriber %}Subscriber ✓{% else %}Sign in{% endif %}
+  </button>
 </header>
 
 <div class="layout">
@@ -100,18 +155,29 @@
     <div class="card">
       <h2>Command Terminal</h2>
       <div class="command-form">
-        <input id="cmd-input" type="text" placeholder='e.g. ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm' autocomplete="off">
-        <button id="cmd-btn" onclick="runCommand()">Run</button>
+        <input id="cmd-input" type="text"
+          placeholder='{% if subscriber %}e.g. ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm{% else %}Sign in to run commands{% endif %}'
+          autocomplete="off"
+          {% if not subscriber %}disabled{% endif %}>
+        <button id="cmd-btn" onclick="runCommand()" {% if not subscriber %}disabled{% endif %}>Run</button>
       </div>
+      {% if not subscriber %}
+      <div class="readonly-notice">
+        You are viewing in read-only mode. <a onclick="openModal()">Sign in</a> to run commands.
+      </div>
+      {% else %}
       <div id="output" class="output placeholder">Output will appear here...</div>
+      {% endif %}
     </div>
 
-    <!-- Quick commands -->
+    <!-- Quick commands (subscriber only) -->
+    {% if subscriber %}
     <div class="card">
       <h2>Quick Commands</h2>
       <div class="quick-btns">
         <button class="quick-btn" onclick="fill('HELP')">HELP</button>
         <button class="quick-btn" onclick="fill('RECALL')">RECALL</button>
+        <button class="quick-btn" onclick="fill('HISTORY')">HISTORY</button>
         <button class="quick-btn" onclick="fill('LIST MEMORIES')">LIST MEMORIES</button>
         <button class="quick-btn" onclick="fill('LIST MEMORIES user_preference')">LIST user_preference</button>
         <button class="quick-btn" onclick="fill('LIST MEMORIES system_calibration')">LIST system_calibration</button>
@@ -120,6 +186,7 @@
         <button class="quick-btn" onclick="fill('ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm')">Sample ANALYZE</button>
       </div>
     </div>
+    {% endif %}
 
     <!-- Calibration history chart -->
     <div class="card">
@@ -133,7 +200,7 @@
     <div class="card">
       <h2>Memory Store</h2>
       <div class="memory-filter">
-        <button class="filter-btn active" onclick="filterMemory('', this)">All</button>
+        <button class="filter-btn active" id="filter-all" onclick="filterMemory('', this)">All</button>
         <button class="filter-btn" onclick="filterMemory('user_preference', this)">user_preference</button>
         <button class="filter-btn" onclick="filterMemory('system_calibration', this)">system_calibration</button>
         <button class="filter-btn" onclick="filterMemory('operation_log', this)">operation_log</button>
@@ -144,7 +211,7 @@
         {% if memories %}
         <table>
           <thead><tr><th>#</th><th>Key</th><th>Value</th><th>Context</th><th>Timestamp</th></tr></thead>
-          <tbody id="memory-rows">
+          <tbody>
             {% for m in memories %}
             <tr>
               <td style="color:#64748b">{{ m.id }}</td>
@@ -169,7 +236,6 @@
   <!-- Right sidebar -->
   <div style="display:flex;flex-direction:column;gap:20px;">
 
-    <!-- Status -->
     <div class="card">
       <h2>Status</h2>
       <div class="status-grid">
@@ -185,23 +251,22 @@
         </div>
       </div>
       <div id="stat-error">
-      {% if last_error %}
-      <div class="alert warn"><strong>Last Error</strong><br>{{ last_error.value.error }}</div>
-      {% else %}
-      <div class="alert ok">No errors logged</div>
-      {% endif %}
+        {% if last_error %}
+        <div class="alert warn"><strong>Last Error</strong><br>{{ last_error.value.error }}</div>
+        {% else %}
+        <div class="alert ok">No errors logged</div>
+        {% endif %}
       </div>
     </div>
 
-    <!-- Last analysis summary -->
     <div class="card">
       <h2>Last Analysis</h2>
       <div id="last-analysis-wrap">
-      {% if last_analysis %}
-      <div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">{{ last_analysis.value.result }}</div>
-      {% else %}
-      <div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>
-      {% endif %}
+        {% if last_analysis %}
+        <div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">{{ last_analysis.value.result }}</div>
+        {% else %}
+        <div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>
+        {% endif %}
       </div>
     </div>
 
@@ -209,58 +274,154 @@
 </div>
 
 <script>
+  // ── Cookie helpers ────────────────────────────────────────────────────────
+  function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
+  }
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  // ── Command history (arrow-key navigation) ────────────────────────────────
+  const MAX_HISTORY = 20;
+  let cmdHistory  = JSON.parse(getCookie('cmdHistory') || '[]');
+  let historyIdx  = -1;
+
   const input = document.getElementById('cmd-input');
   const btn   = document.getElementById('cmd-btn');
   const out   = document.getElementById('output');
 
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') runCommand(); });
-
-  function fill(text) {
-    input.value = text;
-    input.focus();
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { runCommand(); return; }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (historyIdx < cmdHistory.length - 1) { historyIdx++; input.value = cmdHistory[historyIdx]; }
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIdx > 0) { historyIdx--; input.value = cmdHistory[historyIdx]; }
+        else { historyIdx = -1; input.value = ''; }
+      }
+    });
   }
 
+  function saveToHistory(cmd) {
+    cmdHistory = [cmd, ...cmdHistory.filter(c => c !== cmd)].slice(0, MAX_HISTORY);
+    setCookie('cmdHistory', JSON.stringify(cmdHistory), 30);
+    historyIdx = -1;
+  }
+
+  function fill(text) { if (input) { input.value = text; input.focus(); } }
+
+  // ── Command execution ─────────────────────────────────────────────────────
   async function runCommand() {
+    if (!input || !btn) return;
     const cmd = input.value.trim();
     if (!cmd) return;
 
     btn.disabled = true;
-    out.className = 'output';
-    out.textContent = 'Running...';
+    if (out) { out.className = 'output'; out.textContent = 'Running...'; }
 
     try {
-      const res = await fetch('/command', {
+      const res  = await fetch('/command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command: cmd }),
       });
       const data = await res.json();
-      if (data.error) {
-        out.className = 'output error';
-        out.textContent = data.error;
+      if (res.status === 403) {
+        if (out) { out.className = 'output error'; out.textContent = data.error; }
+        openModal();
+      } else if (data.error) {
+        if (out) { out.className = 'output error'; out.textContent = data.error; }
       } else {
-        out.className = 'output';
-        out.textContent = data.result;
+        if (out) { out.className = 'output'; out.textContent = data.result; }
+        saveToHistory(cmd);
         refreshMemory();
         refreshStatus();
         refreshHistory();
       }
     } catch (e) {
-      out.className = 'output error';
-      out.textContent = 'Network error: ' + e.message;
+      if (out) { out.className = 'output error'; out.textContent = 'Network error: ' + e.message; }
     } finally {
       btn.disabled = false;
     }
   }
 
+  // ── Auth modal ────────────────────────────────────────────────────────────
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+    document.getElementById('key-input').focus();
+    document.getElementById('modal-error').textContent = '';
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+  document.getElementById('key-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+    if (e.key === 'Escape') closeModal();
+  });
+
+  async function doLogin() {
+    const key = document.getElementById('key-input').value.trim();
+    const res  = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      closeModal();
+      location.reload();
+    } else {
+      document.getElementById('modal-error').textContent = data.error || 'Invalid key';
+    }
+  }
+
+  async function doLogout() {
+    await fetch('/logout', { method: 'POST' });
+    location.reload();
+  }
+
+  function handleAuthBtn() {
+    const isSubscriber = document.getElementById('auth-btn').classList.contains('subscriber');
+    if (isSubscriber) doLogout();
+    else openModal();
+  }
+
+  {% if subscriber %}
+  document.getElementById('auth-btn').classList.add('subscriber');
+  {% endif %}
+
+  // ── Memory filter (persisted in cookie) ──────────────────────────────────
   const BADGE = {
     user_preference: 'badge-pref', system_calibration: 'badge-cal',
-    error_log: 'badge-err', operation_log: 'badge-op',
-    conversation: 'badge-conv',
+    error_log: 'badge-err', operation_log: 'badge-op', conversation: 'badge-conv',
   };
 
-  async function refreshMemory(context = '') {
-    const url = '/memories' + (context ? '?context=' + context : '');
+  let activeFilter = getCookie('memFilter') || '';
+
+  // Apply saved filter on load
+  if (activeFilter) {
+    const btns = document.querySelectorAll('.filter-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    btns.forEach(b => { if (b.textContent.trim() === activeFilter) b.classList.add('active'); });
+    refreshMemory(activeFilter);
+  }
+
+  function filterMemory(context, el) {
+    activeFilter = context;
+    setCookie('memFilter', context, 30);
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    refreshMemory(context);
+  }
+
+  async function refreshMemory(context) {
+    context = context !== undefined ? context : activeFilter;
+    const url  = '/memories' + (context ? '?context=' + context : '');
     const res  = await fetch(url);
     const data = await res.json();
     const wrap = document.getElementById('memory-table-wrap');
@@ -269,35 +430,44 @@
       wrap.innerHTML = '<div class="empty">No memories stored yet.</div>';
       return;
     }
-
     const rows = data.map(m => {
       const val = typeof m.value === 'string' ? m.value : JSON.stringify(m.value);
-      const badgeClass = BADGE[m.context] || 'badge-other';
-      const ts = m.timestamp.slice(0, 10);
+      const cls = BADGE[m.context] || 'badge-other';
       return `<tr>
         <td style="color:#64748b">${m.id}</td>
-        <td style="color:#e2e8f0;font-family:'Courier New',monospace">${m.key}</td>
+        <td style="color:#e2e8f0;font-family:'Courier New',monospace">${escHtml(m.key)}</td>
         <td style="color:#94a3b8;font-family:'Courier New',monospace;max-width:300px">${escHtml(val)}</td>
-        <td><span class="badge ${badgeClass}">${m.context}</span></td>
-        <td style="color:#475569;font-size:0.72rem">${ts}</td>
+        <td><span class="badge ${cls}">${m.context}</span></td>
+        <td style="color:#475569;font-size:0.72rem">${m.timestamp.slice(0,10)}</td>
       </tr>`;
     }).join('');
-
     wrap.innerHTML = `<table><thead><tr><th>#</th><th>Key</th><th>Value</th><th>Context</th><th>Timestamp</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  let activeFilter = '';
-  function filterMemory(context, el) {
-    activeFilter = context;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    refreshMemory(context);
+  // ── Status panel ──────────────────────────────────────────────────────────
+  async function refreshStatus() {
+    const res  = await fetch('/status');
+    const data = await res.json();
+
+    document.getElementById('stat-count').textContent = data.memory_count;
+    const dateEl = document.getElementById('stat-date');
+    dateEl.textContent  = data.last_analysis_date || '—';
+    dateEl.style.color  = data.last_analysis_date ? '#a78bfa' : '#334155';
+
+    document.getElementById('stat-error').innerHTML = data.last_error
+      ? `<div class="alert warn"><strong>Last Error</strong><br>${escHtml(data.last_error)}</div>`
+      : `<div class="alert ok">No errors logged</div>`;
+
+    document.getElementById('last-analysis-wrap').innerHTML = data.last_analysis_result
+      ? `<div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">${escHtml(data.last_analysis_result)}</div>`
+      : `<div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>`;
   }
 
+  // ── History chart ─────────────────────────────────────────────────────────
   let historyChart = null;
 
   async function refreshHistory() {
@@ -311,13 +481,13 @@
       return;
     }
 
-    const labels   = data.map((d, i) => `#${i + 1} ${d.date}`);
+    const labels   = data.map((d, i) => `#${i+1} ${d.date}`);
     const maxErrs  = data.map(d => d.max_error);
     const meanErrs = data.map(d => d.mean_error);
     const precLine = data.map(d => d.precision);
 
     if (historyChart) {
-      historyChart.data.labels          = labels;
+      historyChart.data.labels           = labels;
       historyChart.data.datasets[0].data = maxErrs;
       historyChart.data.datasets[1].data = meanErrs;
       historyChart.data.datasets[2].data = precLine;
@@ -332,8 +502,8 @@
       data: {
         labels,
         datasets: [
-          { label: 'Max Error (mm)', data: maxErrs,  borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.1)', tension: 0.3, pointRadius: 4 },
-          { label: 'Mean Error (mm)', data: meanErrs, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)',  tension: 0.3, pointRadius: 4 },
+          { label: 'Max Error (mm)',   data: maxErrs,  borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.1)', tension: 0.3, pointRadius: 4 },
+          { label: 'Mean Error (mm)',  data: meanErrs, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)',  tension: 0.3, pointRadius: 4 },
           { label: 'Precision Limit', data: precLine, borderColor: '#4ade80', borderDash: [5,4], pointRadius: 0, tension: 0 },
         ],
       },
@@ -351,26 +521,8 @@
     });
   }
 
-  async function refreshStatus() {
-    const res  = await fetch('/status');
-    const data = await res.json();
-
-    document.getElementById('stat-count').textContent = data.memory_count;
-
-    const dateEl = document.getElementById('stat-date');
-    dateEl.textContent = data.last_analysis_date || '—';
-    dateEl.style.color = data.last_analysis_date ? '#a78bfa' : '#334155';
-
-    const errEl = document.getElementById('stat-error');
-    errEl.innerHTML = data.last_error
-      ? `<div class="alert warn"><strong>Last Error</strong><br>${escHtml(data.last_error)}</div>`
-      : `<div class="alert ok">No errors logged</div>`;
-
-    const analysisWrap = document.getElementById('last-analysis-wrap');
-    analysisWrap.innerHTML = data.last_analysis_result
-      ? `<div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">${escHtml(data.last_analysis_result)}</div>`
-      : `<div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>`;
-  }
+  // Load history on page load
+  refreshHistory();
 </script>
 
 </body>
