@@ -9,13 +9,8 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 
-JOBS_FILE = os.path.join(os.path.dirname(__file__), "data", "jobs.json")
-
-def _load_jobs():
-    with open(JOBS_FILE) as f:
-        return json.load(f)
 from main import build_bot
 from src import memory
 
@@ -24,6 +19,7 @@ app.secret_key = os.environ.get("CLAWBOT_SECRET_KEY", "clawbot-dev-secret-change
 
 bot = build_bot()
 
+JOBS_FILE        = os.path.join(os.path.dirname(__file__), "data", "jobs.json")
 SUBSCRIBERS_FILE = os.path.join(os.path.dirname(__file__), "..", "memory_system", "email_subscribers.json")
 SMTP_HOST     = os.environ.get("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT     = int(os.environ.get("SMTP_PORT", "587"))
@@ -32,6 +28,13 @@ SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
 FROM_EMAIL    = os.environ.get("FROM_EMAIL", SMTP_USER)
 SITE_NAME     = os.environ.get("SITE_NAME", "Calcojobs")
 SITE_URL      = os.environ.get("SITE_URL", "https://calcojobs.com")
+
+
+# ── Data loaders ──────────────────────────────────────────────────────────────
+
+def _load_jobs():
+    with open(JOBS_FILE) as f:
+        return json.load(f)
 
 
 # ── Email subscriber store ────────────────────────────────────────────────────
@@ -64,6 +67,61 @@ def index():
         last_analysis=last_analysis,
         last_error=last_error,
     )
+
+
+@app.route("/jobs")
+def jobs():
+    all_jobs = _load_jobs()
+    regions  = sorted({j["region"] for j in all_jobs})
+    types    = sorted({j["type"]   for j in all_jobs})
+    return render_template(
+        "jobs.html",
+        jobs=all_jobs,
+        regions=regions,
+        types=types,
+        job_count=len(all_jobs),
+        site_url=SITE_URL,
+    )
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    body = f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n"
+    return Response(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    all_jobs = _load_jobs()
+    today    = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    urls = [
+        {"loc": SITE_URL,          "priority": "1.0", "changefreq": "weekly"},
+        {"loc": f"{SITE_URL}/jobs","priority": "0.9", "changefreq": "weekly"},
+    ]
+    for job in all_jobs:
+        urls.append({
+            "loc": f"{SITE_URL}/jobs#job-{job['id']}",
+            "priority": "0.6",
+            "changefreq": "weekly",
+            "lastmod": job.get("posted", today),
+        })
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for u in urls:
+        lines.append("  <url>")
+        lines.append(f"    <loc>{u['loc']}</loc>")
+        if "lastmod" in u:
+            lines.append(f"    <lastmod>{u['lastmod']}</lastmod>")
+        else:
+            lines.append(f"    <lastmod>{today}</lastmod>")
+        lines.append(f"    <changefreq>{u['changefreq']}</changefreq>")
+        lines.append(f"    <priority>{u['priority']}</priority>")
+        lines.append("  </url>")
+    lines.append("</urlset>")
+
+    return Response("\n".join(lines), mimetype="application/xml")
 
 
 @app.route("/command", methods=["POST"])
@@ -116,11 +174,11 @@ def get_status():
     last_analysis = memory.recall("last_analysis")
     last_error    = memory.recall("last_error")
     return jsonify({
-        "memory_count":        len(all_mems),
-        "last_analysis_date":  last_analysis["timestamp"][:10] if last_analysis else None,
+        "memory_count":         len(all_mems),
+        "last_analysis_date":   last_analysis["timestamp"][:10] if last_analysis else None,
         "last_analysis_result": last_analysis["value"]["result"] if last_analysis else None,
-        "last_error":          last_error["value"]["error"] if last_error else None,
-        "subscriber_count":    len(_load_subscribers()),
+        "last_error":           last_error["value"]["error"] if last_error else None,
+        "subscriber_count":     len(_load_subscribers()),
     })
 
 
@@ -131,20 +189,6 @@ def get_history():
         {"timestamp": e["timestamp"], "date": e["timestamp"][:10], **e["value"]}
         for e in entries
     ])
-
-
-@app.route("/jobs")
-def jobs():
-    all_jobs = _load_jobs()
-    regions  = sorted({j["region"] for j in all_jobs})
-    types    = sorted({j["type"]   for j in all_jobs})
-    return render_template(
-        "jobs.html",
-        jobs=all_jobs,
-        regions=regions,
-        types=types,
-        job_count=len(all_jobs),
-    )
 
 
 @app.route("/memories")
@@ -194,12 +238,16 @@ def send_weekly_digest(custom_message=""):
     if not subs:
         return 0
 
-    last_analysis = memory.recall("last_analysis")
-    analysis_snippet = ""
-    if last_analysis:
-        analysis_snippet = f"""
-        <h3 style="color:#7c3aed">Latest Analysis</h3>
-        <pre style="background:#f8fafc;padding:12px;border-radius:6px;font-size:0.85rem;overflow-x:auto">{last_analysis['value']['result']}</pre>"""
+    all_jobs = _load_jobs()[:5]
+    job_rows = "".join(
+        f"""<tr>
+          <td style="padding:8px;border-bottom:1px solid #e2e8f0">
+            <strong>{j['title']}</strong><br>
+            <span style="color:#64748b;font-size:0.85rem">{j['company']} · {j['city']}, CA · {j['salary']}</span>
+          </td>
+        </tr>"""
+        for j in all_jobs
+    )
 
     sent = 0
     for sub in subs:
@@ -207,14 +255,19 @@ def send_weekly_digest(custom_message=""):
         <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#1e293b">
           <h2 style="color:#7c3aed">Your Weekly Update from {SITE_NAME}</h2>
           {f'<p>{custom_message}</p>' if custom_message else ''}
-          {analysis_snippet}
-          <p><a href="{SITE_URL}" style="background:#7c3aed;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none">Visit {SITE_NAME}</a></p>
+          <h3 style="margin:20px 0 10px;color:#1e293b">This Week's Top Jobs</h3>
+          <table style="width:100%;border-collapse:collapse">{job_rows}</table>
+          <p style="margin-top:20px">
+            <a href="{SITE_URL}/jobs" style="background:#7c3aed;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none">
+              View All Jobs →
+            </a>
+          </p>
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
           <p style="font-size:0.8rem;color:#94a3b8">
             <a href="{SITE_URL}/unsubscribe?email={sub['email']}" style="color:#7c3aed">Unsubscribe</a>
           </p>
         </div>"""
-        if _send_email(sub["email"], f"Your weekly update from {SITE_NAME}", html):
+        if _send_email(sub["email"], f"Your weekly jobs from {SITE_NAME}", html):
             sent += 1
     return sent
 

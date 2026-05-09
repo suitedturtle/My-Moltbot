@@ -4,7 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calcojobs — California Robotics &amp; Automation Jobs</title>
-  <meta name="description" content="Find robotics technician, automation engineer, CNC machinist, and calibration jobs across California. Updated weekly.">
+  <meta name="description" content="Find robotics technician, automation engineer, CNC machinist, and calibration jobs across California. Updated weekly. Free to search, no account required.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="{{ site_url }}/jobs">
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="{{ site_url }}/jobs">
+  <meta property="og:title"       content="California Robotics &amp; Automation Jobs — Calcojobs">
+  <meta property="og:description" content="30+ robotics, automation, CNC, and calibration roles at top California companies. Updated weekly.">
+  <meta property="og:site_name"   content="Calcojobs">
+  <!-- JSON-LD: JobPosting structured data for Google Jobs -->
+  <script type="application/ld+json">
+  [
+    {% for job in jobs %}
+    {
+      "@context": "https://schema.org/",
+      "@type": "JobPosting",
+      "title": {{ job.title | tojson }},
+      "description": {{ job.description | tojson }},
+      "datePosted": {{ job.posted | tojson }},
+      "employmentType": {% if job.type == "Full-Time" %}"FULL_TIME"{% else %}"PART_TIME"{% endif %},
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": {{ job.company | tojson }},
+        "sameAs": {{ job.url | tojson }}
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": {{ job.city | tojson }},
+          "addressRegion": "CA",
+          "addressCountry": "US"
+        }
+      },
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": "USD",
+        "value": {
+          "@type": "QuantitativeValue",
+          "unitText": "YEAR",
+          "value": {{ job.salary | tojson }}
+        }
+      },
+      "url": "{{ site_url }}/jobs#job-{{ job.id }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+  </script>
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6496918064862756" crossorigin="anonymous"></script>
   <style>
@@ -206,6 +253,7 @@
     {% endif %}
 
     <div class="job-card"
+         id="job-{{ job.id }}"
          data-title="{{ job.title | lower }}"
          data-company="{{ job.company | lower }}"
          data-tags="{{ job.tags | join(' ') | lower }}"

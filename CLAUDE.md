@@ -118,3 +118,43 @@ When in doubt, ask "what does this project need to actually work end-to-end?" an
 
 - Dependencies: `numpy` (analysis), `flask` (web), `pytest` (tests) — declared in `requirements.txt`.
 - The file named `memory syte` (with a space, in the project root) is a design document for the memory schema, not a source file.
+
+## Web Routes (current)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | Dashboard (memory table, command terminal, status) |
+| GET | `/jobs` | Job listings page (30 CA robotics/automation roles) |
+| POST | `/command` | Run a bot command; JSON `{"command":"..."}` → `{"result":"..."}` |
+| GET | `/status` | JSON status (memory count, last analysis, last error, subscriber count) |
+| GET | `/history` | JSON array of calibration history entries |
+| GET | `/memories?context=<ctx>` | JSON array of memory entries, optionally filtered |
+| POST | `/subscribe` | Add email subscriber; sends welcome email |
+| POST | `/unsubscribe` | Remove email subscriber |
+| GET | `/sitemap.xml` | Auto-generated XML sitemap (SEO) |
+| GET | `/robots.txt` | robots.txt (SEO) |
+
+## Key Files
+
+- `web/data/jobs.json` — 30 California robotics/automation job listings (source of truth for /jobs)
+- `web/templates/jobs.html` — Jobs listing page with search, region/type filters, AdSense, subscribe sidebar
+- `web/templates/index.html` — Dashboard
+- `memory_system/email_subscribers.json` — Subscriber list (gitignored, auto-created at runtime)
+
+## AdSense
+
+Publisher ID: `ca-pub-6496918064862756`. Auto-ads script is in both template `<head>` blocks. Individual `<ins>` slots use `data-ad-slot="auto"`. After AdSense approves the site, replace `"auto"` with real slot IDs from the AdSense console.
+
+## SEO Checklist (branch: claude/seo-foundations)
+
+- [x] `robots.txt` route
+- [x] `sitemap.xml` route (dynamic, lists /, /jobs, and each job anchor)
+- [x] Meta description + Open Graph tags on index.html
+- [x] Meta description + Open Graph tags on jobs.html
+- [x] JSON-LD JobPosting structured data on jobs.html (enables Google Jobs integration)
+
+## Roadmap (next steps after SEO)
+
+1. Update weekly digest email to include top job listings (gives subscribers a reason to click back)
+2. About page (`/about`) — explains site purpose, good for AdSense review
+3. Expand job listings: add more categories (software, healthcare, logistics) or an admin route to add jobs without editing JSON
