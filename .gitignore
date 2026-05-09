@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 *.pyo
 memory_system/clawbot_memory.json
+memory_system/email_subscribers.json
