@@ -73,7 +73,9 @@ The dashboard (`web/app.py` + `web/templates/index.html`) provides:
 - A live memory table with context filtering
 - A status panel showing memory count, last analysis date, and last error
 
-Routes: `GET /` (dashboard), `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error), `GET /history` (JSON array of calibration runs).
+**Auth:** Set `CLAWBOT_ACCESS_KEY` env var (default: `clawbot123`) and `CLAWBOT_SECRET_KEY` (Flask session secret). Non-subscribers get a read-only view; subscribers unlock full command access via a login modal backed by a session cookie.
+
+Routes: `GET /` (dashboard), `POST /login`, `POST /logout`, `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error), `GET /history` (JSON array of calibration runs).
 
 ## Running Tests
 
