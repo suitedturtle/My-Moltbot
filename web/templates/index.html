@@ -11,9 +11,14 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
 
-    header { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 16px 32px; display: flex; align-items: center; gap: 12px; }
+    header { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 14px 32px; display: flex; align-items: center; gap: 12px; }
     header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; flex: 1; }
     header span { font-size: 0.8rem; color: #64748b; }
+    .header-sub-btn {
+      background: #7c3aed; color: #fff; border: none; border-radius: 6px;
+      padding: 7px 16px; font-size: 0.82rem; cursor: pointer; transition: background 0.15s; white-space: nowrap;
+    }
+    .header-sub-btn:hover { background: #6d28d9; }
 
     .layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
 
@@ -24,7 +29,7 @@
     .ad-slot { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 8px; text-align: center; min-height: 90px; display: flex; align-items: center; justify-content: center; }
     .ad-slot ins { display: block; width: 100%; }
 
-    /* Email banner */
+    /* Hero email banner */
     .email-banner {
       background: linear-gradient(135deg, #1e1a3b 0%, #1a1d27 100%);
       border: 1px solid #3730a3; border-radius: 10px; padding: 24px;
@@ -33,11 +38,28 @@
     .email-banner .copy { flex: 1; min-width: 200px; }
     .email-banner h3 { color: #a78bfa; font-size: 1rem; margin-bottom: 4px; }
     .email-banner p  { color: #94a3b8; font-size: 0.82rem; }
+
+    /* Inline subscribe strip */
+    .sub-strip {
+      background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px;
+      padding: 14px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .sub-strip p { flex: 1; font-size: 0.82rem; color: #94a3b8; min-width: 160px; }
+    .sub-strip p strong { color: #e2e8f0; }
+
+    /* Sidebar subscribe card */
+    .sub-card {
+      background: linear-gradient(160deg, #1e1a3b 0%, #1a1d27 100%);
+      border: 1px solid #3730a3; border-radius: 10px; padding: 20px;
+    }
+    .sub-card h2 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #a78bfa; margin-bottom: 8px; }
+    .sub-card p { font-size: 0.8rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.5; }
+
+    /* Shared email form styles */
     .email-form { display: flex; gap: 8px; flex-wrap: wrap; }
     .email-form input {
-      background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
-      color: #e2e8f0; padding: 9px 14px; font-size: 0.85rem; outline: none;
-      transition: border-color 0.15s; width: 220px;
+      flex: 1; min-width: 140px; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
+      color: #e2e8f0; padding: 9px 14px; font-size: 0.85rem; outline: none; transition: border-color 0.15s;
     }
     .email-form input:focus { border-color: #a78bfa; }
     .email-form button {
@@ -49,7 +71,7 @@
     .email-msg.ok  { color: #4ade80; }
     .email-msg.err { color: #f87171; }
 
-    /* Command input */
+    /* Command terminal */
     .command-form { display: flex; gap: 8px; }
     .command-form input {
       flex: 1; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
@@ -63,7 +85,6 @@
     }
     .command-form button:hover { background: #6d28d9; }
     .command-form button:disabled { background: #3b3f5c; cursor: not-allowed; }
-
     .output {
       margin-top: 14px; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
       padding: 14px; font-family: 'Courier New', monospace; font-size: 0.82rem;
@@ -86,7 +107,6 @@
     .stat { background: #0f1117; border: 1px solid #2d3148; border-radius: 6px; padding: 12px; }
     .stat .label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
     .stat .value { font-size: 1.4rem; font-weight: 700; color: #a78bfa; margin-top: 2px; }
-
     .alert { border-radius: 6px; padding: 10px 14px; font-size: 0.82rem; margin-top: 10px; }
     .alert.warn { background: #431407; border: 1px solid #7c2d12; color: #fca5a5; }
     .alert.ok   { background: #052e16; border: 1px solid #14532d; color: #86efac; }
@@ -98,7 +118,6 @@
       color: #64748b; padding: 3px 10px; font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
     }
     .filter-btn.active, .filter-btn:hover { background: #2d3148; color: #a78bfa; border-color: #a78bfa; }
-
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
     th { text-align: left; color: #64748b; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #2d3148; }
     td { padding: 8px 8px; border-bottom: 1px solid #1e2235; vertical-align: top; word-break: break-word; }
@@ -119,17 +138,15 @@
 <header>
   <h1>Calcojobs Dashboard</h1>
   <span>Robot Calibration &amp; Monitoring</span>
+  <button class="header-sub-btn" onclick="focusSubscribe()">Subscribe for Updates</button>
 </header>
 
 <!-- Top leaderboard ad -->
 <div style="padding: 12px 32px; max-width:1400px; margin: 0 auto;">
   <div class="ad-slot">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-6496918064862756"
-         data-ad-slot="auto"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
+    <ins class="adsbygoogle" style="display:block"
+         data-ad-client="ca-pub-6496918064862756" data-ad-slot="auto"
+         data-ad-format="auto" data-full-width-responsive="true"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 </div>
@@ -137,16 +154,16 @@
 <div class="layout">
   <div style="display:flex;flex-direction:column;gap:20px;">
 
-    <!-- Email sign-up banner -->
+    <!-- Hero email banner -->
     <div class="email-banner">
       <div class="copy">
         <h3>Get weekly job alerts</h3>
-        <p>New opportunities and updates delivered straight to your inbox every week.</p>
+        <p>New opportunities and updates delivered straight to your inbox every week. Be the first to know.</p>
       </div>
       <div>
         <div class="email-form">
           <input id="email-input" type="email" placeholder="you@example.com" autocomplete="email">
-          <button onclick="subscribe()">Notify Me</button>
+          <button onclick="subscribe('email-input','email-msg')">Notify Me</button>
         </div>
         <div class="email-msg" id="email-msg"></div>
       </div>
@@ -181,13 +198,22 @@
 
     <!-- Mid-page ad -->
     <div class="ad-slot">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-6496918064862756"
-           data-ad-slot="auto"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
+      <ins class="adsbygoogle" style="display:block"
+           data-ad-client="ca-pub-6496918064862756" data-ad-slot="auto"
+           data-ad-format="auto" data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- Inline subscribe strip -->
+    <div class="sub-strip">
+      <p><strong>Don't miss an update.</strong> Get new jobs and calibration tips sent weekly.</p>
+      <div>
+        <div class="email-form">
+          <input id="email-strip" type="email" placeholder="your@email.com" autocomplete="email">
+          <button onclick="subscribe('email-strip','strip-msg')">Subscribe</button>
+        </div>
+        <div class="email-msg" id="strip-msg"></div>
+      </div>
     </div>
 
     <!-- Calibration history chart -->
@@ -233,6 +259,18 @@
       </div>
     </div>
 
+    <!-- Bottom subscribe strip -->
+    <div class="sub-strip">
+      <p><strong>Stay in the loop.</strong> Weekly digest of new listings and robot calibration insights.</p>
+      <div>
+        <div class="email-form">
+          <input id="email-bottom" type="email" placeholder="your@email.com" autocomplete="email">
+          <button onclick="subscribe('email-bottom','bottom-msg')">Get Updates</button>
+        </div>
+        <div class="email-msg" id="bottom-msg"></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Right sidebar -->
@@ -240,13 +278,21 @@
 
     <!-- Sidebar ad -->
     <div class="ad-slot" style="min-height:250px;">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-6496918064862756"
-           data-ad-slot="auto"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
+      <ins class="adsbygoogle" style="display:block"
+           data-ad-client="ca-pub-6496918064862756" data-ad-slot="auto"
+           data-ad-format="auto" data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- Sidebar subscribe card -->
+    <div class="sub-card">
+      <h2>Weekly Job Alerts</h2>
+      <p>Subscribe to get the latest jobs and updates delivered to your inbox every week. Free forever.</p>
+      <div class="email-form" style="flex-direction:column;">
+        <input id="email-sidebar" type="email" placeholder="your@email.com" autocomplete="email" style="width:100%;">
+        <button onclick="subscribe('email-sidebar','sidebar-msg')" style="width:100%;margin-top:2px;">Subscribe for Free</button>
+      </div>
+      <div class="email-msg" id="sidebar-msg"></div>
     </div>
 
     <!-- Status -->
@@ -289,6 +335,14 @@
       </div>
     </div>
 
+    <!-- Second sidebar ad -->
+    <div class="ad-slot" style="min-height:200px;">
+      <ins class="adsbygoogle" style="display:block"
+           data-ad-client="ca-pub-6496918064862756" data-ad-slot="auto"
+           data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
   </div>
 </div>
 
@@ -302,6 +356,30 @@
     const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
     return m ? decodeURIComponent(m[1]) : null;
   }
+
+  // ── Subscribe (shared by all forms) ──────────────────────────────────────
+  function focusSubscribe() {
+    const el = document.getElementById('email-input');
+    el.focus();
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  async function subscribe(inputId, msgId) {
+    const email = document.getElementById(inputId).value.trim();
+    const msg   = document.getElementById(msgId);
+    if (!email) { msg.className = 'email-msg err'; msg.textContent = 'Please enter your email.'; return; }
+    const res  = await fetch('/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+    const data = await res.json();
+    msg.className = 'email-msg ' + (data.ok ? 'ok' : 'err');
+    msg.textContent = data.message || data.error;
+    if (data.ok) { document.getElementById(inputId).value = ''; refreshStatus(); }
+  }
+
+  // Wire Enter key for all subscribe inputs
+  ['email-input','email-strip','email-bottom','email-sidebar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') { const msgId = id.replace('email-','').replace('input','msg') || 'email-msg'; subscribe(id, { 'input':'email-msg','strip':'strip-msg','bottom':'bottom-msg','sidebar':'sidebar-msg' }[id.split('-')[1]] || 'email-msg'); } });
+  });
 
   // ── Command history (arrow keys) ──────────────────────────────────────────
   const MAX_HIST = 20;
@@ -333,27 +411,13 @@
     btn.disabled = true;
     out.className = 'output'; out.textContent = 'Running...';
     try {
-      const res  = await fetch('/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ command: cmd }) });
+      const res  = await fetch('/command', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ command: cmd }) });
       const data = await res.json();
       if (data.error) { out.className = 'output error'; out.textContent = data.error; }
       else { out.className = 'output'; out.textContent = data.result; saveToHistory(cmd); refreshMemory(); refreshStatus(); refreshHistory(); }
     } catch (e) { out.className = 'output error'; out.textContent = 'Network error: ' + e.message; }
     finally { btn.disabled = false; }
   }
-
-  // ── Email subscribe ───────────────────────────────────────────────────────
-  async function subscribe() {
-    const email = document.getElementById('email-input').value.trim();
-    const msg   = document.getElementById('email-msg');
-    if (!email) { msg.className = 'email-msg err'; msg.textContent = 'Please enter your email.'; return; }
-    const res  = await fetch('/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
-    const data = await res.json();
-    msg.className = 'email-msg ' + (data.ok ? 'ok' : 'err');
-    msg.textContent = data.message || data.error;
-    if (data.ok) { document.getElementById('email-input').value = ''; refreshStatus(); }
-  }
-
-  document.getElementById('email-input').addEventListener('keydown', e => { if (e.key === 'Enter') subscribe(); });
 
   // ── Memory filter (persisted) ─────────────────────────────────────────────
   const BADGE = { user_preference:'badge-pref', system_calibration:'badge-cal', error_log:'badge-err', operation_log:'badge-op', conversation:'badge-conv' };
