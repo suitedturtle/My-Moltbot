@@ -137,7 +137,7 @@ When in doubt, ask "what does this project need to actually work end-to-end?" an
 
 ## Key Files
 
-- `web/data/jobs.json` — 30 California robotics/automation job listings (source of truth for /jobs)
+- `web/data/jobs.json` — 50 California job listings across 4 categories: Robotics & Automation, Software & Embedded, Healthcare & Medical, Logistics & Warehouse (source of truth for /jobs)
 - `web/templates/jobs.html` — Jobs listing page with search, region/type filters, AdSense, subscribe sidebar
 - `web/templates/about.html` — About page (who it's for, how it works, subscribe CTA)
 - `web/templates/index.html` — Dashboard
@@ -159,5 +159,5 @@ Publisher ID: `ca-pub-6496918064862756`. Auto-ads script is in both template `<h
 
 1. ✅ Weekly digest email includes top 5 job listings
 2. ✅ About page (`/about`) — explains site purpose, good for AdSense review
-3. Expand job listings: add software, healthcare, and logistics categories to broaden the audience
+3. ✅ Expand job listings: added Software & Embedded, Healthcare & Medical, Logistics & Warehouse (50 total)
 4. Submit sitemap to Google Search Console once site is live at calcojobs.com

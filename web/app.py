@@ -71,14 +71,16 @@ def index():
 
 @app.route("/jobs")
 def jobs():
-    all_jobs = _load_jobs()
-    regions  = sorted({j["region"] for j in all_jobs})
-    types    = sorted({j["type"]   for j in all_jobs})
+    all_jobs   = _load_jobs()
+    regions    = sorted({j["region"]   for j in all_jobs})
+    types      = sorted({j["type"]     for j in all_jobs})
+    categories = sorted({j.get("category", "Robotics & Automation") for j in all_jobs})
     return render_template(
         "jobs.html",
         jobs=all_jobs,
         regions=regions,
         types=types,
+        categories=categories,
         job_count=len(all_jobs),
         site_url=SITE_URL,
     )

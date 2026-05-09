@@ -123,9 +123,13 @@
     .meta-pill {
       font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; border: 1px solid;
     }
-    .pill-city  { background: #1e2235; border-color: #2d3148; color: #94a3b8; }
-    .pill-type  { background: #1e1a3b; border-color: #3730a3; color: #c4b5fd; }
-    .pill-salary { background: #052e16; border-color: #14532d; color: #86efac; }
+    .pill-city     { background: #1e2235; border-color: #2d3148; color: #94a3b8; }
+    .pill-type     { background: #1e1a3b; border-color: #3730a3; color: #c4b5fd; }
+    .pill-salary   { background: #052e16; border-color: #14532d; color: #86efac; }
+    .pill-robotics { background: #1e1a3b; border-color: #4c1d95; color: #c4b5fd; }
+    .pill-software { background: #0c1a2e; border-color: #1e40af; color: #93c5fd; }
+    .pill-health   { background: #0c1f1a; border-color: #065f46; color: #6ee7b7; }
+    .pill-logistics{ background: #1c1407; border-color: #78350f; color: #fcd34d; }
     .job-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .job-footer { margin-top: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .job-tags { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
@@ -209,7 +213,8 @@
   <p>Technician, engineer, and operator roles at top companies across the state. Updated weekly.</p>
   <div class="hero-stats">
     <div class="hero-stat"><strong>{{ job_count }}</strong> open positions</div>
-    <div class="hero-stat"><strong>4</strong> regions</div>
+    <div class="hero-stat"><strong>{{ categories | length }}</strong> job categories</div>
+    <div class="hero-stat"><strong>{{ regions | length }}</strong> CA regions</div>
     <div class="hero-stat"><strong>Weekly</strong> updates</div>
   </div>
 </div>
@@ -223,6 +228,13 @@
     <option value="">All regions</option>
     {% for region in regions %}
     <option value="{{ region }}">{{ region }}</option>
+    {% endfor %}
+  </select>
+  <label>Category</label>
+  <select class="filter-select" id="category-filter" onchange="applyFilters()">
+    <option value="">All categories</option>
+    {% for cat in categories %}
+    <option value="{{ cat }}">{{ cat }}</option>
     {% endfor %}
   </select>
   <label>Type</label>
@@ -259,14 +271,23 @@
          data-company="{{ job.company | lower }}"
          data-tags="{{ job.tags | join(' ') | lower }}"
          data-region="{{ job.region }}"
-         data-type="{{ job.type }}">
+         data-type="{{ job.type }}"
+         data-category="{{ job.category }}">
       <div class="job-logo">{{ job.company[0] }}</div>
       <div class="job-body">
         <div class="job-title">{{ job.title }}</div>
         <div class="job-company">{{ job.company }}</div>
         <div class="job-meta">
           <span class="meta-pill pill-city">{{ job.city }}, CA</span>
-          <span class="meta-pill pill-type">{{ job.type }}</span>
+          {% if job.category == "Software & Embedded" %}
+          <span class="meta-pill pill-software">{{ job.category }}</span>
+          {% elif job.category == "Healthcare & Medical" %}
+          <span class="meta-pill pill-health">{{ job.category }}</span>
+          {% elif job.category == "Logistics & Warehouse" %}
+          <span class="meta-pill pill-logistics">{{ job.category }}</span>
+          {% else %}
+          <span class="meta-pill pill-robotics">{{ job.category }}</span>
+          {% endif %}
           <span class="meta-pill pill-salary">{{ job.salary }}</span>
         </div>
         <div class="job-desc">{{ job.description }}</div>
@@ -311,7 +332,16 @@
 
     <!-- Quick links -->
     <div class="info-card">
-      <h3>Explore by Region</h3>
+      <h3>Browse by Category</h3>
+      <ul>
+        {% for cat in categories %}
+        <li><a href="#" onclick="setCategory('{{ cat }}'); return false;">{{ cat }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>Browse by Region</h3>
       <ul>
         {% for region in regions %}
         <li><a href="#" onclick="setRegion('{{ region }}'); return false;">{{ region }}</a></li>
@@ -331,20 +361,22 @@
 
 <script>
   function applyFilters() {
-    const q      = document.getElementById('search').value.toLowerCase();
-    const region = document.getElementById('region-filter').value;
-    const type   = document.getElementById('type-filter').value;
-    const cards  = document.querySelectorAll('.job-card');
-    let visible  = 0;
+    const q        = document.getElementById('search').value.toLowerCase();
+    const region   = document.getElementById('region-filter').value;
+    const category = document.getElementById('category-filter').value;
+    const type     = document.getElementById('type-filter').value;
+    const cards    = document.querySelectorAll('.job-card');
+    let visible    = 0;
 
     cards.forEach(c => {
       const matchQ = !q ||
         c.dataset.title.includes(q) ||
         c.dataset.company.includes(q) ||
         c.dataset.tags.includes(q);
-      const matchR = !region || c.dataset.region === region;
-      const matchT = !type   || c.dataset.type   === type;
-      const show   = matchQ && matchR && matchT;
+      const matchR = !region   || c.dataset.region   === region;
+      const matchC = !category || c.dataset.category === category;
+      const matchT = !type     || c.dataset.type     === type;
+      const show   = matchQ && matchR && matchC && matchT;
       c.classList.toggle('hidden', !show);
       if (show) visible++;
     });
@@ -357,12 +389,19 @@
   function clearFilters() {
     document.getElementById('search').value = '';
     document.getElementById('region-filter').value = '';
+    document.getElementById('category-filter').value = '';
     document.getElementById('type-filter').value = '';
     applyFilters();
   }
 
   function setRegion(r) {
     document.getElementById('region-filter').value = r;
+    applyFilters();
+    document.querySelector('.filters').scrollIntoView({behavior: 'smooth'});
+  }
+
+  function setCategory(cat) {
+    document.getElementById('category-filter').value = cat;
     applyFilters();
     document.querySelector('.filters').scrollIntoView({behavior: 'smooth'});
   }
