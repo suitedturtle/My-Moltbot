@@ -33,6 +33,19 @@ def run_command():
     return jsonify({"result": result})
 
 
+@app.route("/status")
+def get_status():
+    all_mems = memory.all_memories()
+    last_analysis = memory.recall("last_analysis")
+    last_error = memory.recall("last_error")
+    return jsonify({
+        "memory_count": len(all_mems),
+        "last_analysis_date": last_analysis["timestamp"][:10] if last_analysis else None,
+        "last_analysis_result": last_analysis["value"]["result"] if last_analysis else None,
+        "last_error": last_error["value"]["error"] if last_error else None,
+    })
+
+
 @app.route("/memories")
 def get_memories():
     context = request.args.get("context")
