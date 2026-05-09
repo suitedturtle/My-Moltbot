@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clawbot Dashboard</title>
+  <title>Calcojobs — Robot Calibration Dashboard</title>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6496918064862756" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,19 +14,42 @@
     header { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 16px 32px; display: flex; align-items: center; gap: 12px; }
     header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; flex: 1; }
     header span { font-size: 0.8rem; color: #64748b; }
-    #auth-btn {
-      background: none; border: 1px solid #2d3148; border-radius: 6px; color: #94a3b8;
-      padding: 6px 14px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
-    }
-    #auth-btn:hover { border-color: #a78bfa; color: #a78bfa; }
-    #auth-btn.subscriber { border-color: #4ade80; color: #4ade80; }
 
     .layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
 
     .card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 20px; }
     .card h2 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 14px; }
 
-    /* Command terminal */
+    /* Ad slots */
+    .ad-slot { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 8px; text-align: center; min-height: 90px; display: flex; align-items: center; justify-content: center; }
+    .ad-slot ins { display: block; width: 100%; }
+
+    /* Email banner */
+    .email-banner {
+      background: linear-gradient(135deg, #1e1a3b 0%, #1a1d27 100%);
+      border: 1px solid #3730a3; border-radius: 10px; padding: 24px;
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    }
+    .email-banner .copy { flex: 1; min-width: 200px; }
+    .email-banner h3 { color: #a78bfa; font-size: 1rem; margin-bottom: 4px; }
+    .email-banner p  { color: #94a3b8; font-size: 0.82rem; }
+    .email-form { display: flex; gap: 8px; flex-wrap: wrap; }
+    .email-form input {
+      background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
+      color: #e2e8f0; padding: 9px 14px; font-size: 0.85rem; outline: none;
+      transition: border-color 0.15s; width: 220px;
+    }
+    .email-form input:focus { border-color: #a78bfa; }
+    .email-form button {
+      background: #7c3aed; color: #fff; border: none; border-radius: 6px;
+      padding: 9px 18px; font-size: 0.85rem; cursor: pointer; transition: background 0.15s; white-space: nowrap;
+    }
+    .email-form button:hover { background: #6d28d9; }
+    .email-msg { font-size: 0.78rem; margin-top: 8px; min-height: 1em; }
+    .email-msg.ok  { color: #4ade80; }
+    .email-msg.err { color: #f87171; }
+
+    /* Command input */
     .command-form { display: flex; gap: 8px; }
     .command-form input {
       flex: 1; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
@@ -32,7 +57,6 @@
       outline: none; transition: border-color 0.15s;
     }
     .command-form input:focus { border-color: #a78bfa; }
-    .command-form input:disabled { opacity: 0.4; cursor: not-allowed; }
     .command-form button {
       background: #7c3aed; color: #fff; border: none; border-radius: 6px;
       padding: 10px 20px; font-size: 0.9rem; cursor: pointer; transition: background 0.15s;
@@ -48,12 +72,6 @@
     .output.error { color: #f87171; }
     .output.placeholder { color: #334155; }
 
-    .readonly-notice {
-      margin-top: 12px; background: #1e1a3b; border: 1px solid #3730a3; border-radius: 6px;
-      padding: 10px 14px; font-size: 0.82rem; color: #a5b4fc;
-    }
-    .readonly-notice a { color: #a78bfa; cursor: pointer; text-decoration: underline; }
-
     /* Quick commands */
     .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; }
     .quick-btn {
@@ -62,7 +80,6 @@
       transition: all 0.15s; font-family: 'Courier New', monospace;
     }
     .quick-btn:hover { background: #2d3148; color: #e2e8f0; border-color: #a78bfa; }
-    .quick-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
     /* Status */
     .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -95,83 +112,59 @@
     .badge-conv  { background: #1e1a3b; color: #c4b5fd; }
     .badge-other { background: #1e2235; color: #94a3b8; }
     .empty { color: #334155; text-align: center; padding: 24px; font-size: 0.85rem; }
-
-    /* Login modal */
-    .modal-backdrop {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      z-index: 100; align-items: center; justify-content: center;
-    }
-    .modal-backdrop.open { display: flex; }
-    .modal {
-      background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px;
-      padding: 28px; width: 360px; max-width: 90vw;
-    }
-    .modal h3 { font-size: 1rem; color: #e2e8f0; margin-bottom: 6px; }
-    .modal p  { font-size: 0.82rem; color: #64748b; margin-bottom: 18px; }
-    .modal input {
-      width: 100%; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
-      color: #e2e8f0; padding: 10px 14px; font-size: 0.9rem; outline: none;
-      transition: border-color 0.15s; margin-bottom: 10px;
-    }
-    .modal input:focus { border-color: #a78bfa; }
-    .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
-    .modal-btns button {
-      border: none; border-radius: 6px; padding: 8px 18px; font-size: 0.85rem; cursor: pointer;
-    }
-    .btn-cancel { background: #1e2235; color: #94a3b8; }
-    .btn-login  { background: #7c3aed; color: #fff; }
-    .btn-login:hover { background: #6d28d9; }
-    .modal-error { color: #f87171; font-size: 0.78rem; margin-bottom: 8px; min-height: 1em; }
   </style>
 </head>
 <body>
 
-<!-- Login modal -->
-<div class="modal-backdrop" id="modal">
-  <div class="modal">
-    <h3>Subscriber Access</h3>
-    <p>Enter your access key to unlock full command access.</p>
-    <input id="key-input" type="password" placeholder="Access key" autocomplete="current-password">
-    <div class="modal-error" id="modal-error"></div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-login" onclick="doLogin()">Unlock</button>
-    </div>
+<header>
+  <h1>Calcojobs Dashboard</h1>
+  <span>Robot Calibration &amp; Monitoring</span>
+</header>
+
+<!-- Top leaderboard ad -->
+<div style="padding: 12px 32px; max-width:1400px; margin: 0 auto;">
+  <div class="ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-6496918064862756"
+         data-ad-slot="auto"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 </div>
 
-<header>
-  <h1>Clawbot Dashboard</h1>
-  <span>Robot Control &amp; Monitoring</span>
-  <button id="auth-btn" onclick="handleAuthBtn()">
-    {% if subscriber %}Subscriber ✓{% else %}Sign in{% endif %}
-  </button>
-</header>
-
 <div class="layout">
   <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <!-- Email sign-up banner -->
+    <div class="email-banner">
+      <div class="copy">
+        <h3>Get weekly job alerts</h3>
+        <p>New opportunities and updates delivered straight to your inbox every week.</p>
+      </div>
+      <div>
+        <div class="email-form">
+          <input id="email-input" type="email" placeholder="you@example.com" autocomplete="email">
+          <button onclick="subscribe()">Notify Me</button>
+        </div>
+        <div class="email-msg" id="email-msg"></div>
+      </div>
+    </div>
 
     <!-- Command terminal -->
     <div class="card">
       <h2>Command Terminal</h2>
       <div class="command-form">
         <input id="cmd-input" type="text"
-          placeholder='{% if subscriber %}e.g. ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm{% else %}Sign in to run commands{% endif %}'
-          autocomplete="off"
-          {% if not subscriber %}disabled{% endif %}>
-        <button id="cmd-btn" onclick="runCommand()" {% if not subscriber %}disabled{% endif %}>Run</button>
+          placeholder="e.g. ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm"
+          autocomplete="off">
+        <button id="cmd-btn" onclick="runCommand()">Run</button>
       </div>
-      {% if not subscriber %}
-      <div class="readonly-notice">
-        You are viewing in read-only mode. <a onclick="openModal()">Sign in</a> to run commands.
-      </div>
-      {% else %}
       <div id="output" class="output placeholder">Output will appear here...</div>
-      {% endif %}
     </div>
 
-    <!-- Quick commands (subscriber only) -->
-    {% if subscriber %}
+    <!-- Quick commands -->
     <div class="card">
       <h2>Quick Commands</h2>
       <div class="quick-btns">
@@ -180,13 +173,22 @@
         <button class="quick-btn" onclick="fill('HISTORY')">HISTORY</button>
         <button class="quick-btn" onclick="fill('LIST MEMORIES')">LIST MEMORIES</button>
         <button class="quick-btn" onclick="fill('LIST MEMORIES user_preference')">LIST user_preference</button>
-        <button class="quick-btn" onclick="fill('LIST MEMORIES system_calibration')">LIST system_calibration</button>
         <button class="quick-btn" onclick="fill('LIST MEMORIES error_log')">LIST error_log</button>
         <button class="quick-btn" onclick="fill('GET last_error')">GET last_error</button>
         <button class="quick-btn" onclick="fill('ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm')">Sample ANALYZE</button>
       </div>
     </div>
-    {% endif %}
+
+    <!-- Mid-page ad -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-6496918064862756"
+           data-ad-slot="auto"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
 
     <!-- Calibration history chart -->
     <div class="card">
@@ -200,7 +202,7 @@
     <div class="card">
       <h2>Memory Store</h2>
       <div class="memory-filter">
-        <button class="filter-btn active" id="filter-all" onclick="filterMemory('', this)">All</button>
+        <button class="filter-btn active" onclick="filterMemory('', this)">All</button>
         <button class="filter-btn" onclick="filterMemory('user_preference', this)">user_preference</button>
         <button class="filter-btn" onclick="filterMemory('system_calibration', this)">system_calibration</button>
         <button class="filter-btn" onclick="filterMemory('operation_log', this)">operation_log</button>
@@ -236,6 +238,18 @@
   <!-- Right sidebar -->
   <div style="display:flex;flex-direction:column;gap:20px;">
 
+    <!-- Sidebar ad -->
+    <div class="ad-slot" style="min-height:250px;">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-6496918064862756"
+           data-ad-slot="auto"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- Status -->
     <div class="card">
       <h2>Status</h2>
       <div class="status-grid">
@@ -249,6 +263,10 @@
             {{ last_analysis.timestamp[:10] if last_analysis else '—' }}
           </div>
         </div>
+        <div class="stat" style="grid-column:span 2;">
+          <div class="label">Subscribers</div>
+          <div class="value" id="stat-subs" style="font-size:1.1rem;">—</div>
+        </div>
       </div>
       <div id="stat-error">
         {% if last_error %}
@@ -259,6 +277,7 @@
       </div>
     </div>
 
+    <!-- Last analysis -->
     <div class="card">
       <h2>Last Analysis</h2>
       <div id="last-analysis-wrap">
@@ -280,134 +299,71 @@
     document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
   }
   function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return match ? decodeURIComponent(match[1]) : null;
+    const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
   }
 
-  // ── Command history (arrow-key navigation) ────────────────────────────────
-  const MAX_HISTORY = 20;
-  let cmdHistory  = JSON.parse(getCookie('cmdHistory') || '[]');
-  let historyIdx  = -1;
+  // ── Command history (arrow keys) ──────────────────────────────────────────
+  const MAX_HIST = 20;
+  let cmdHistory = JSON.parse(getCookie('cmdHistory') || '[]');
+  let histIdx    = -1;
 
   const input = document.getElementById('cmd-input');
   const btn   = document.getElementById('cmd-btn');
   const out   = document.getElementById('output');
 
-  if (input) {
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { runCommand(); return; }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (historyIdx < cmdHistory.length - 1) { historyIdx++; input.value = cmdHistory[historyIdx]; }
-      }
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (historyIdx > 0) { historyIdx--; input.value = cmdHistory[historyIdx]; }
-        else { historyIdx = -1; input.value = ''; }
-      }
-    });
-  }
-
-  function saveToHistory(cmd) {
-    cmdHistory = [cmd, ...cmdHistory.filter(c => c !== cmd)].slice(0, MAX_HISTORY);
-    setCookie('cmdHistory', JSON.stringify(cmdHistory), 30);
-    historyIdx = -1;
-  }
-
-  function fill(text) { if (input) { input.value = text; input.focus(); } }
-
-  // ── Command execution ─────────────────────────────────────────────────────
-  async function runCommand() {
-    if (!input || !btn) return;
-    const cmd = input.value.trim();
-    if (!cmd) return;
-
-    btn.disabled = true;
-    if (out) { out.className = 'output'; out.textContent = 'Running...'; }
-
-    try {
-      const res  = await fetch('/command', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: cmd }),
-      });
-      const data = await res.json();
-      if (res.status === 403) {
-        if (out) { out.className = 'output error'; out.textContent = data.error; }
-        openModal();
-      } else if (data.error) {
-        if (out) { out.className = 'output error'; out.textContent = data.error; }
-      } else {
-        if (out) { out.className = 'output'; out.textContent = data.result; }
-        saveToHistory(cmd);
-        refreshMemory();
-        refreshStatus();
-        refreshHistory();
-      }
-    } catch (e) {
-      if (out) { out.className = 'output error'; out.textContent = 'Network error: ' + e.message; }
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  // ── Auth modal ────────────────────────────────────────────────────────────
-  function openModal() {
-    document.getElementById('modal').classList.add('open');
-    document.getElementById('key-input').focus();
-    document.getElementById('modal-error').textContent = '';
-  }
-  function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
-  document.getElementById('key-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-    if (e.key === 'Escape') closeModal();
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { runCommand(); return; }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); if (histIdx < cmdHistory.length - 1) { histIdx++; input.value = cmdHistory[histIdx]; } }
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (histIdx > 0) { histIdx--; input.value = cmdHistory[histIdx]; } else { histIdx = -1; input.value = ''; } }
   });
 
-  async function doLogin() {
-    const key = document.getElementById('key-input').value.trim();
-    const res  = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key }),
-    });
+  function saveToHistory(cmd) {
+    cmdHistory = [cmd, ...cmdHistory.filter(c => c !== cmd)].slice(0, MAX_HIST);
+    setCookie('cmdHistory', JSON.stringify(cmdHistory), 30);
+    histIdx = -1;
+  }
+
+  function fill(text) { input.value = text; input.focus(); }
+
+  // ── Run command ───────────────────────────────────────────────────────────
+  async function runCommand() {
+    const cmd = input.value.trim();
+    if (!cmd) return;
+    btn.disabled = true;
+    out.className = 'output'; out.textContent = 'Running...';
+    try {
+      const res  = await fetch('/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ command: cmd }) });
+      const data = await res.json();
+      if (data.error) { out.className = 'output error'; out.textContent = data.error; }
+      else { out.className = 'output'; out.textContent = data.result; saveToHistory(cmd); refreshMemory(); refreshStatus(); refreshHistory(); }
+    } catch (e) { out.className = 'output error'; out.textContent = 'Network error: ' + e.message; }
+    finally { btn.disabled = false; }
+  }
+
+  // ── Email subscribe ───────────────────────────────────────────────────────
+  async function subscribe() {
+    const email = document.getElementById('email-input').value.trim();
+    const msg   = document.getElementById('email-msg');
+    if (!email) { msg.className = 'email-msg err'; msg.textContent = 'Please enter your email.'; return; }
+    const res  = await fetch('/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
     const data = await res.json();
-    if (data.ok) {
-      closeModal();
-      location.reload();
-    } else {
-      document.getElementById('modal-error').textContent = data.error || 'Invalid key';
-    }
+    msg.className = 'email-msg ' + (data.ok ? 'ok' : 'err');
+    msg.textContent = data.message || data.error;
+    if (data.ok) { document.getElementById('email-input').value = ''; refreshStatus(); }
   }
 
-  async function doLogout() {
-    await fetch('/logout', { method: 'POST' });
-    location.reload();
-  }
+  document.getElementById('email-input').addEventListener('keydown', e => { if (e.key === 'Enter') subscribe(); });
 
-  function handleAuthBtn() {
-    const isSubscriber = document.getElementById('auth-btn').classList.contains('subscriber');
-    if (isSubscriber) doLogout();
-    else openModal();
-  }
-
-  {% if subscriber %}
-  document.getElementById('auth-btn').classList.add('subscriber');
-  {% endif %}
-
-  // ── Memory filter (persisted in cookie) ──────────────────────────────────
-  const BADGE = {
-    user_preference: 'badge-pref', system_calibration: 'badge-cal',
-    error_log: 'badge-err', operation_log: 'badge-op', conversation: 'badge-conv',
-  };
-
+  // ── Memory filter (persisted) ─────────────────────────────────────────────
+  const BADGE = { user_preference:'badge-pref', system_calibration:'badge-cal', error_log:'badge-err', operation_log:'badge-op', conversation:'badge-conv' };
   let activeFilter = getCookie('memFilter') || '';
 
-  // Apply saved filter on load
   if (activeFilter) {
-    const btns = document.querySelectorAll('.filter-btn');
-    btns.forEach(b => b.classList.remove('active'));
-    btns.forEach(b => { if (b.textContent.trim() === activeFilter) b.classList.add('active'); });
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active');
+      if (b.textContent.trim() === activeFilter) b.classList.add('active');
+    });
     refreshMemory(activeFilter);
   }
 
@@ -421,47 +377,31 @@
 
   async function refreshMemory(context) {
     context = context !== undefined ? context : activeFilter;
-    const url  = '/memories' + (context ? '?context=' + context : '');
-    const res  = await fetch(url);
+    const res  = await fetch('/memories' + (context ? '?context=' + context : ''));
     const data = await res.json();
     const wrap = document.getElementById('memory-table-wrap');
-
-    if (!data.length) {
-      wrap.innerHTML = '<div class="empty">No memories stored yet.</div>';
-      return;
-    }
+    if (!data.length) { wrap.innerHTML = '<div class="empty">No memories stored yet.</div>'; return; }
     const rows = data.map(m => {
       const val = typeof m.value === 'string' ? m.value : JSON.stringify(m.value);
       const cls = BADGE[m.context] || 'badge-other';
-      return `<tr>
-        <td style="color:#64748b">${m.id}</td>
-        <td style="color:#e2e8f0;font-family:'Courier New',monospace">${escHtml(m.key)}</td>
-        <td style="color:#94a3b8;font-family:'Courier New',monospace;max-width:300px">${escHtml(val)}</td>
-        <td><span class="badge ${cls}">${m.context}</span></td>
-        <td style="color:#475569;font-size:0.72rem">${m.timestamp.slice(0,10)}</td>
-      </tr>`;
+      return `<tr><td style="color:#64748b">${m.id}</td><td style="color:#e2e8f0;font-family:'Courier New',monospace">${escHtml(m.key)}</td><td style="color:#94a3b8;font-family:'Courier New',monospace;max-width:300px">${escHtml(val)}</td><td><span class="badge ${cls}">${m.context}</span></td><td style="color:#475569;font-size:0.72rem">${m.timestamp.slice(0,10)}</td></tr>`;
     }).join('');
     wrap.innerHTML = `<table><thead><tr><th>#</th><th>Key</th><th>Value</th><th>Context</th><th>Timestamp</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   // ── Status panel ──────────────────────────────────────────────────────────
   async function refreshStatus() {
-    const res  = await fetch('/status');
-    const data = await res.json();
-
+    const data = await fetch('/status').then(r => r.json());
     document.getElementById('stat-count').textContent = data.memory_count;
+    document.getElementById('stat-subs').textContent  = data.subscriber_count;
     const dateEl = document.getElementById('stat-date');
-    dateEl.textContent  = data.last_analysis_date || '—';
-    dateEl.style.color  = data.last_analysis_date ? '#a78bfa' : '#334155';
-
+    dateEl.textContent = data.last_analysis_date || '—';
+    dateEl.style.color = data.last_analysis_date ? '#a78bfa' : '#334155';
     document.getElementById('stat-error').innerHTML = data.last_error
       ? `<div class="alert warn"><strong>Last Error</strong><br>${escHtml(data.last_error)}</div>`
       : `<div class="alert ok">No errors logged</div>`;
-
     document.getElementById('last-analysis-wrap').innerHTML = data.last_analysis_result
       ? `<div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">${escHtml(data.last_analysis_result)}</div>`
       : `<div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>`;
@@ -471,58 +411,44 @@
   let historyChart = null;
 
   async function refreshHistory() {
-    const res  = await fetch('/history');
-    const data = await res.json();
+    const data = await fetch('/history').then(r => r.json());
     const wrap = document.getElementById('history-wrap');
-
     if (!data.length) {
       wrap.innerHTML = '<div class="empty">No calibration history yet. Run an ANALYZE command to start tracking.</div>';
-      if (historyChart) { historyChart.destroy(); historyChart = null; }
-      return;
+      if (historyChart) { historyChart.destroy(); historyChart = null; } return;
     }
-
-    const labels   = data.map((d, i) => `#${i+1} ${d.date}`);
-    const maxErrs  = data.map(d => d.max_error);
-    const meanErrs = data.map(d => d.mean_error);
-    const precLine = data.map(d => d.precision);
-
+    const labels = data.map((d,i) => `#${i+1} ${d.date}`);
+    const maxE   = data.map(d => d.max_error);
+    const meanE  = data.map(d => d.mean_error);
+    const prec   = data.map(d => d.precision);
     if (historyChart) {
-      historyChart.data.labels           = labels;
-      historyChart.data.datasets[0].data = maxErrs;
-      historyChart.data.datasets[1].data = meanErrs;
-      historyChart.data.datasets[2].data = precLine;
-      historyChart.update();
-      return;
+      historyChart.data.labels = labels;
+      historyChart.data.datasets[0].data = maxE;
+      historyChart.data.datasets[1].data = meanE;
+      historyChart.data.datasets[2].data = prec;
+      historyChart.update(); return;
     }
-
     wrap.innerHTML = '<canvas id="history-chart" height="120"></canvas>';
-    const ctx = document.getElementById('history-chart').getContext('2d');
-    historyChart = new Chart(ctx, {
+    historyChart = new Chart(document.getElementById('history-chart').getContext('2d'), {
       type: 'line',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Max Error (mm)',   data: maxErrs,  borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.1)', tension: 0.3, pointRadius: 4 },
-          { label: 'Mean Error (mm)',  data: meanErrs, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)',  tension: 0.3, pointRadius: 4 },
-          { label: 'Precision Limit', data: precLine, borderColor: '#4ade80', borderDash: [5,4], pointRadius: 0, tension: 0 },
-        ],
-      },
+      data: { labels, datasets: [
+        { label:'Max Error (mm)',  data:maxE,  borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, pointRadius:4 },
+        { label:'Mean Error (mm)', data:meanE, borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.1)',  tension:0.3, pointRadius:4 },
+        { label:'Precision Limit', data:prec,  borderColor:'#4ade80', borderDash:[5,4], pointRadius:0, tension:0 },
+      ]},
       options: {
         responsive: true,
-        plugins: {
-          legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
-          tooltip: { mode: 'index', intersect: false },
-        },
+        plugins: { legend:{ labels:{color:'#94a3b8',font:{size:11}} }, tooltip:{mode:'index',intersect:false} },
         scales: {
-          x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e2235' } },
-          y: { ticks: { color: '#64748b' }, grid: { color: '#1e2235' }, title: { display: true, text: 'mm', color: '#64748b' } },
+          x: { ticks:{color:'#64748b',font:{size:10}}, grid:{color:'#1e2235'} },
+          y: { ticks:{color:'#64748b'}, grid:{color:'#1e2235'}, title:{display:true,text:'mm',color:'#64748b'} },
         },
       },
     });
   }
 
-  // Load history on page load
   refreshHistory();
+  refreshStatus();
 </script>
 
 </body>

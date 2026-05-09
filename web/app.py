@@ -1,56 +1,67 @@
 import sys
 import os
+import json
+import smtplib
+import re
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timezone
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 from main import build_bot
 from src import memory
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("CLAWBOT_SECRET_KEY", "clawbot-dev-secret-change-in-prod")
 
-ACCESS_KEY = os.environ.get("CLAWBOT_ACCESS_KEY", "clawbot123")
-
 bot = build_bot()
 
+SUBSCRIBERS_FILE = os.path.join(os.path.dirname(__file__), "..", "memory_system", "email_subscribers.json")
+SMTP_HOST     = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT     = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER     = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+FROM_EMAIL    = os.environ.get("FROM_EMAIL", SMTP_USER)
+SITE_NAME     = os.environ.get("SITE_NAME", "Calcojobs")
+SITE_URL      = os.environ.get("SITE_URL", "https://calcojobs.com")
 
-def is_subscriber():
-    return session.get("subscriber") is True
 
+# ── Email subscriber store ────────────────────────────────────────────────────
+
+def _load_subscribers():
+    if not os.path.exists(SUBSCRIBERS_FILE):
+        return []
+    with open(SUBSCRIBERS_FILE) as f:
+        return json.load(f)
+
+def _save_subscribers(subs):
+    os.makedirs(os.path.dirname(SUBSCRIBERS_FILE), exist_ok=True)
+    with open(SUBSCRIBERS_FILE, "w") as f:
+        json.dump(subs, f, indent=2)
+
+def _valid_email(email):
+    return bool(re.match(r"[^@\s]+@[^@\s]+\.[^@\s]+", email))
+
+
+# ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route("/")
 def index():
-    memories = memory.all_memories()
+    memories      = memory.all_memories()
     last_analysis = memory.recall("last_analysis")
-    last_error = memory.recall("last_error")
+    last_error    = memory.recall("last_error")
     return render_template(
         "index.html",
         memories=memories,
         last_analysis=last_analysis,
         last_error=last_error,
-        subscriber=is_subscriber(),
     )
-
-
-@app.route("/login", methods=["POST"])
-def login():
-    key = (request.get_json() or {}).get("key", "").strip()
-    if key == ACCESS_KEY:
-        session["subscriber"] = True
-        return jsonify({"ok": True})
-    return jsonify({"ok": False, "error": "Invalid access key"}), 401
-
-
-@app.route("/logout", methods=["POST"])
-def logout():
-    session.pop("subscriber", None)
-    return jsonify({"ok": True})
 
 
 @app.route("/command", methods=["POST"])
 def run_command():
-    if not is_subscriber():
-        return jsonify({"error": "Subscriber access required to run commands."}), 403
     data = request.get_json()
     command_text = (data or {}).get("command", "").strip()
     if not command_text:
@@ -59,17 +70,51 @@ def run_command():
     return jsonify({"result": result})
 
 
+@app.route("/subscribe", methods=["POST"])
+def subscribe():
+    data  = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+
+    if not email or not _valid_email(email):
+        return jsonify({"error": "Please enter a valid email address."}), 400
+
+    subs = _load_subscribers()
+    if any(s["email"] == email for s in subs):
+        return jsonify({"ok": True, "message": "You're already subscribed!"})
+
+    subs.append({
+        "email": email,
+        "subscribed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    })
+    _save_subscribers(subs)
+    _send_welcome(email)
+
+    return jsonify({"ok": True, "message": "You're subscribed! We'll be in touch."})
+
+
+@app.route("/unsubscribe", methods=["POST"])
+def unsubscribe():
+    data  = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+    subs  = _load_subscribers()
+    new   = [s for s in subs if s["email"] != email]
+    if len(new) < len(subs):
+        _save_subscribers(new)
+        return jsonify({"ok": True, "message": "You've been unsubscribed."})
+    return jsonify({"ok": False, "message": "Email not found."}), 404
+
+
 @app.route("/status")
 def get_status():
-    all_mems = memory.all_memories()
+    all_mems      = memory.all_memories()
     last_analysis = memory.recall("last_analysis")
-    last_error = memory.recall("last_error")
+    last_error    = memory.recall("last_error")
     return jsonify({
-        "memory_count": len(all_mems),
-        "last_analysis_date": last_analysis["timestamp"][:10] if last_analysis else None,
+        "memory_count":        len(all_mems),
+        "last_analysis_date":  last_analysis["timestamp"][:10] if last_analysis else None,
         "last_analysis_result": last_analysis["value"]["result"] if last_analysis else None,
-        "last_error": last_error["value"]["error"] if last_error else None,
-        "subscriber": is_subscriber(),
+        "last_error":          last_error["value"]["error"] if last_error else None,
+        "subscriber_count":    len(_load_subscribers()),
     })
 
 
@@ -77,11 +122,7 @@ def get_status():
 def get_history():
     entries = memory.recall_all("calibration_history")
     return jsonify([
-        {
-            "timestamp": e["timestamp"],
-            "date": e["timestamp"][:10],
-            **e["value"],
-        }
+        {"timestamp": e["timestamp"], "date": e["timestamp"][:10], **e["value"]}
         for e in entries
     ])
 
@@ -91,6 +132,71 @@ def get_memories():
     context = request.args.get("context")
     entries = memory.recall_by_context(context) if context else memory.all_memories()
     return jsonify(entries)
+
+
+# ── Email helpers ─────────────────────────────────────────────────────────────
+
+def _send_email(to, subject, body_html):
+    if not SMTP_USER or not SMTP_PASSWORD:
+        return False
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"]    = f"{SITE_NAME} <{FROM_EMAIL}>"
+        msg["To"]      = to
+        msg.attach(MIMEText(body_html, "html"))
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASSWORD)
+            s.sendmail(FROM_EMAIL, to, msg.as_string())
+        return True
+    except Exception:
+        return False
+
+
+def _send_welcome(email):
+    html = f"""
+    <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#1e293b">
+      <h2 style="color:#7c3aed">Welcome to {SITE_NAME}!</h2>
+      <p>You're now subscribed to weekly job alerts and updates.</p>
+      <p>We'll send you a digest every week with the latest opportunities.</p>
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
+      <p style="font-size:0.8rem;color:#94a3b8">
+        Don't want emails? <a href="{SITE_URL}/unsubscribe?email={email}" style="color:#7c3aed">Unsubscribe</a>
+      </p>
+    </div>"""
+    _send_email(email, f"Welcome to {SITE_NAME}!", html)
+
+
+def send_weekly_digest(custom_message=""):
+    """Call this weekly (e.g. via cron) to email all subscribers."""
+    subs = _load_subscribers()
+    if not subs:
+        return 0
+
+    last_analysis = memory.recall("last_analysis")
+    analysis_snippet = ""
+    if last_analysis:
+        analysis_snippet = f"""
+        <h3 style="color:#7c3aed">Latest Analysis</h3>
+        <pre style="background:#f8fafc;padding:12px;border-radius:6px;font-size:0.85rem;overflow-x:auto">{last_analysis['value']['result']}</pre>"""
+
+    sent = 0
+    for sub in subs:
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:auto;color:#1e293b">
+          <h2 style="color:#7c3aed">Your Weekly Update from {SITE_NAME}</h2>
+          {f'<p>{custom_message}</p>' if custom_message else ''}
+          {analysis_snippet}
+          <p><a href="{SITE_URL}" style="background:#7c3aed;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none">Visit {SITE_NAME}</a></p>
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
+          <p style="font-size:0.8rem;color:#94a3b8">
+            <a href="{SITE_URL}/unsubscribe?email={sub['email']}" style="color:#7c3aed">Unsubscribe</a>
+          </p>
+        </div>"""
+        if _send_email(sub["email"], f"Your weekly update from {SITE_NAME}", html):
+            sent += 1
+    return sent
 
 
 if __name__ == "__main__":

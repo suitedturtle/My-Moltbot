@@ -72,10 +72,14 @@ The dashboard (`web/app.py` + `web/templates/index.html`) provides:
 - Quick-command buttons for common operations
 - A live memory table with context filtering
 - A status panel showing memory count, last analysis date, and last error
+- Google AdSense ad units (publisher ID: ca-pub-6496918064862756)
+- Email sign-up for weekly job alerts (stored in `memory_system/email_subscribers.json`)
 
 **Auth:** Set `CLAWBOT_ACCESS_KEY` env var (default: `clawbot123`) and `CLAWBOT_SECRET_KEY` (Flask session secret). Non-subscribers get a read-only view; subscribers unlock full command access via a login modal backed by a session cookie.
 
-Routes: `GET /` (dashboard), `POST /login`, `POST /logout`, `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error), `GET /history` (JSON array of calibration runs).
+**Email:** Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `FROM_EMAIL`, `SITE_NAME`, `SITE_URL` env vars to enable outgoing email. Call `send_weekly_digest()` from a cron job to email all subscribers weekly.
+
+Routes: `GET /` (dashboard), `POST /login`, `POST /logout`, `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error), `GET /history` (JSON array of calibration runs), `POST /subscribe`, `POST /unsubscribe`. (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array), `GET /status` (JSON with memory_count, last_analysis_date, last_error), `GET /history` (JSON array of calibration runs).
 
 ## Running Tests
 
