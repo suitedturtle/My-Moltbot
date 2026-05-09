@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clawbot Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+    header { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 16px 32px; display: flex; align-items: center; gap: 12px; }
+    header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; }
+    header span { font-size: 0.8rem; color: #64748b; }
+
+    .layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+    .card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 20px; }
+    .card h2 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 14px; }
+
+    /* Command input */
+    .command-form { display: flex; gap: 8px; }
+    .command-form input {
+      flex: 1; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
+      color: #e2e8f0; padding: 10px 14px; font-size: 0.9rem; font-family: 'Courier New', monospace;
+      outline: none; transition: border-color 0.15s;
+    }
+    .command-form input:focus { border-color: #a78bfa; }
+    .command-form button {
+      background: #7c3aed; color: #fff; border: none; border-radius: 6px;
+      padding: 10px 20px; font-size: 0.9rem; cursor: pointer; transition: background 0.15s;
+    }
+    .command-form button:hover { background: #6d28d9; }
+    .command-form button:disabled { background: #3b3f5c; cursor: not-allowed; }
+
+    .output {
+      margin-top: 14px; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px;
+      padding: 14px; font-family: 'Courier New', monospace; font-size: 0.82rem;
+      white-space: pre-wrap; min-height: 80px; color: #a3e635; line-height: 1.6;
+    }
+    .output.error { color: #f87171; }
+    .output.placeholder { color: #334155; }
+
+    /* Quick commands */
+    .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+    .quick-btn {
+      background: #1e2235; border: 1px solid #2d3148; border-radius: 5px;
+      color: #94a3b8; padding: 5px 10px; font-size: 0.78rem; cursor: pointer;
+      transition: all 0.15s; font-family: 'Courier New', monospace;
+    }
+    .quick-btn:hover { background: #2d3148; color: #e2e8f0; border-color: #a78bfa; }
+
+    /* Status cards */
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat { background: #0f1117; border: 1px solid #2d3148; border-radius: 6px; padding: 12px; }
+    .stat .label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat .value { font-size: 1.4rem; font-weight: 700; color: #a78bfa; margin-top: 2px; }
+
+    .alert { border-radius: 6px; padding: 10px 14px; font-size: 0.82rem; margin-top: 10px; }
+    .alert.warn { background: #431407; border: 1px solid #7c2d12; color: #fca5a5; }
+    .alert.ok { background: #052e16; border: 1px solid #14532d; color: #86efac; }
+
+    /* Memory table */
+    .memory-filter { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .filter-btn {
+      background: #1e2235; border: 1px solid #2d3148; border-radius: 4px;
+      color: #64748b; padding: 3px 10px; font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover { background: #2d3148; color: #a78bfa; border-color: #a78bfa; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { text-align: left; color: #64748b; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #2d3148; }
+    td { padding: 8px 8px; border-bottom: 1px solid #1e2235; vertical-align: top; word-break: break-word; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1e2235; }
+    .badge {
+      display: inline-block; border-radius: 3px; padding: 1px 6px; font-size: 0.7rem; font-weight: 500;
+    }
+    .badge-pref  { background: #1e3a5f; color: #60a5fa; }
+    .badge-cal   { background: #1a2e1a; color: #4ade80; }
+    .badge-err   { background: #3b0f0f; color: #f87171; }
+    .badge-op    { background: #2a1f00; color: #fbbf24; }
+    .badge-conv  { background: #1e1a3b; color: #c4b5fd; }
+    .badge-other { background: #1e2235; color: #94a3b8; }
+
+    .empty { color: #334155; text-align: center; padding: 24px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Clawbot Dashboard</h1>
+  <span>Robot Control &amp; Monitoring</span>
+</header>
+
+<div class="layout">
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <!-- Command terminal -->
+    <div class="card">
+      <h2>Command Terminal</h2>
+      <div class="command-form">
+        <input id="cmd-input" type="text" placeholder='e.g. ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm' autocomplete="off">
+        <button id="cmd-btn" onclick="runCommand()">Run</button>
+      </div>
+      <div id="output" class="output placeholder">Output will appear here...</div>
+    </div>
+
+    <!-- Quick commands -->
+    <div class="card">
+      <h2>Quick Commands</h2>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="fill('HELP')">HELP</button>
+        <button class="quick-btn" onclick="fill('RECALL')">RECALL</button>
+        <button class="quick-btn" onclick="fill('LIST MEMORIES')">LIST MEMORIES</button>
+        <button class="quick-btn" onclick="fill('LIST MEMORIES user_preference')">LIST user_preference</button>
+        <button class="quick-btn" onclick="fill('LIST MEMORIES system_calibration')">LIST system_calibration</button>
+        <button class="quick-btn" onclick="fill('LIST MEMORIES error_log')">LIST error_log</button>
+        <button class="quick-btn" onclick="fill('GET last_error')">GET last_error</button>
+        <button class="quick-btn" onclick="fill('ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.9,50.1,75.0,100.2] mm')">Sample ANALYZE</button>
+      </div>
+    </div>
+
+    <!-- Memory table -->
+    <div class="card">
+      <h2>Memory Store</h2>
+      <div class="memory-filter">
+        <button class="filter-btn active" onclick="filterMemory('', this)">All</button>
+        <button class="filter-btn" onclick="filterMemory('user_preference', this)">user_preference</button>
+        <button class="filter-btn" onclick="filterMemory('system_calibration', this)">system_calibration</button>
+        <button class="filter-btn" onclick="filterMemory('operation_log', this)">operation_log</button>
+        <button class="filter-btn" onclick="filterMemory('error_log', this)">error_log</button>
+        <button class="filter-btn" onclick="filterMemory('conversation', this)">conversation</button>
+      </div>
+      <div id="memory-table-wrap">
+        {% if memories %}
+        <table>
+          <thead><tr><th>#</th><th>Key</th><th>Value</th><th>Context</th><th>Timestamp</th></tr></thead>
+          <tbody id="memory-rows">
+            {% for m in memories %}
+            <tr>
+              <td style="color:#64748b">{{ m.id }}</td>
+              <td style="color:#e2e8f0;font-family:'Courier New',monospace">{{ m.key }}</td>
+              <td style="color:#94a3b8;font-family:'Courier New',monospace;max-width:300px">
+                {{ m.value | tojson if m.value is not string else m.value }}
+              </td>
+              <td><span class="badge badge-{{ m.context.split('_')[0] }}">{{ m.context }}</span></td>
+              <td style="color:#475569;font-size:0.72rem">{{ m.timestamp }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No memories stored yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right sidebar -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <!-- Status -->
+    <div class="card">
+      <h2>Status</h2>
+      <div class="status-grid">
+        <div class="stat">
+          <div class="label">Memories</div>
+          <div class="value">{{ memories | length }}</div>
+        </div>
+        <div class="stat">
+          <div class="label">Last Analysis</div>
+          <div class="value" style="font-size:0.85rem;color:#{{ 'a78bfa' if last_analysis else '334155' }}">
+            {{ last_analysis.timestamp[:10] if last_analysis else '—' }}
+          </div>
+        </div>
+      </div>
+      {% if last_error %}
+      <div class="alert warn">
+        <strong>Last Error</strong><br>
+        {{ last_error.value.error }}
+      </div>
+      {% else %}
+      <div class="alert ok">No errors logged</div>
+      {% endif %}
+    </div>
+
+    <!-- Last analysis summary -->
+    <div class="card">
+      <h2>Last Analysis</h2>
+      {% if last_analysis %}
+      <div style="font-family:'Courier New',monospace;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;line-height:1.6;max-height:420px;overflow-y:auto;">{{ last_analysis.value.result }}</div>
+      {% else %}
+      <div class="empty">No analysis run yet.<br>Use the ANALYZE command to get started.</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById('cmd-input');
+  const btn   = document.getElementById('cmd-btn');
+  const out   = document.getElementById('output');
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') runCommand(); });
+
+  function fill(text) {
+    input.value = text;
+    input.focus();
+  }
+
+  async function runCommand() {
+    const cmd = input.value.trim();
+    if (!cmd) return;
+
+    btn.disabled = true;
+    out.className = 'output';
+    out.textContent = 'Running...';
+
+    try {
+      const res = await fetch('/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: cmd }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        out.className = 'output error';
+        out.textContent = data.error;
+      } else {
+        out.className = 'output';
+        out.textContent = data.result;
+        refreshMemory();
+      }
+    } catch (e) {
+      out.className = 'output error';
+      out.textContent = 'Network error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  const BADGE = {
+    user_preference: 'badge-pref', system_calibration: 'badge-cal',
+    error_log: 'badge-err', operation_log: 'badge-op',
+    conversation: 'badge-conv',
+  };
+
+  async function refreshMemory(context = '') {
+    const url = '/memories' + (context ? '?context=' + context : '');
+    const res  = await fetch(url);
+    const data = await res.json();
+    const wrap = document.getElementById('memory-table-wrap');
+
+    if (!data.length) {
+      wrap.innerHTML = '<div class="empty">No memories stored yet.</div>';
+      return;
+    }
+
+    const rows = data.map(m => {
+      const val = typeof m.value === 'string' ? m.value : JSON.stringify(m.value);
+      const badgeClass = BADGE[m.context] || 'badge-other';
+      const ts = m.timestamp.slice(0, 10);
+      return `<tr>
+        <td style="color:#64748b">${m.id}</td>
+        <td style="color:#e2e8f0;font-family:'Courier New',monospace">${m.key}</td>
+        <td style="color:#94a3b8;font-family:'Courier New',monospace;max-width:300px">${escHtml(val)}</td>
+        <td><span class="badge ${badgeClass}">${m.context}</span></td>
+        <td style="color:#475569;font-size:0.72rem">${ts}</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `<table><thead><tr><th>#</th><th>Key</th><th>Value</th><th>Context</th><th>Timestamp</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let activeFilter = '';
+  function filterMemory(context, el) {
+    activeFilter = context;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    refreshMemory(context);
+  }
+</script>
+
+</body>
+</html>

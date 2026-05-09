@@ -59,6 +59,21 @@ Analyzes robot measurement accuracy. Default expected positions: `[0, 25, 50, 75
 
 Computes: absolute errors, z-scores (normalized by precision), movement pattern detection, and a calibration recommendation.
 
+## Running the Web Interface
+
+```bash
+pip install -r requirements.txt
+python3 web/app.py        # serves on http://localhost:5000
+```
+
+The dashboard (`web/app.py` + `web/templates/index.html`) provides:
+- A command terminal (all CLI commands work via the browser)
+- Quick-command buttons for common operations
+- A live memory table with context filtering
+- A status panel showing memory count, last analysis date, and last error
+
+Routes: `GET /` (dashboard), `POST /command` (JSON `{"command": "..."}` → `{"result": "..."}`), `GET /memories?context=<ctx>` (JSON array).
+
 ## Running Tests
 
 ```bash
@@ -94,5 +109,5 @@ When in doubt, ask "what does this project need to actually work end-to-end?" an
 
 ## Development Notes
 
-- Dependencies: `numpy` (analysis), `pytest` (tests) — declared in `requirements.txt`.
+- Dependencies: `numpy` (analysis), `flask` (web), `pytest` (tests) — declared in `requirements.txt`.
 - The file named `memory syte` (with a space, in the project root) is a design document for the memory schema, not a source file.
