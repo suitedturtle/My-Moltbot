@@ -102,7 +102,7 @@ class ForgetMemoryCommand:
 
         if removed == 0:
             return f"No memories found for key '{key}'."
-        return f"Removed {removed} memory entry{'s' if removed != 1 else ''} for key '{key}'."
+        return f"Removed {removed} memory {'entries' if removed != 1 else 'entry'} for key '{key}'."
 
 
 def setup(bot):

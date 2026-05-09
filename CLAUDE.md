@@ -59,6 +59,15 @@ Analyzes robot measurement accuracy. Default expected positions: `[0, 25, 50, 75
 
 Computes: absolute errors, z-scores (normalized by precision), movement pattern detection, and a calibration recommendation.
 
+## Running Tests
+
+```bash
+python3 -m pytest tests/ -v        # all tests
+python3 -m pytest tests/test_memory.py -v   # single file
+```
+
+Tests use `monkeypatch` to redirect `MEMORY_FILE` to a `tmp_path` per test — no real `clawbot_memory.json` is written during test runs.
+
 ## Running the Bot
 
 ```bash
@@ -85,6 +94,5 @@ When in doubt, ask "what does this project need to actually work end-to-end?" an
 
 ## Development Notes
 
-- No test runner, linter, or build tooling is configured yet — the project is in early stages.
-- The only external dependency identified so far is `numpy` (used in `science_analysis.py`).
+- Dependencies: `numpy` (analysis), `pytest` (tests) — declared in `requirements.txt`.
 - The file named `memory syte` (with a space, in the project root) is a design document for the memory schema, not a source file.

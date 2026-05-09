@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from datetime import datetime, timezone
@@ -18,7 +19,7 @@ _EMPTY_STORE = {"next_id": 1, "memories": []}
 def _load():
     path = os.path.abspath(MEMORY_FILE)
     if not os.path.exists(path):
-        return dict(_EMPTY_STORE)
+        return copy.deepcopy(_EMPTY_STORE)
     with open(path, "r") as f:
         return json.load(f)
 
