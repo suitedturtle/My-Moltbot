@@ -6,6 +6,7 @@ from src import memory
 
 COMMAND_ROUTING = [
     ("ANALYZE",    "ScienceAnalysisCommand"),
+    ("HISTORY",    "HistoryCommand"),
     ("SET",        "SetMemoryCommand"),
     ("GET",        "GetMemoryCommand"),
     ("LIST MEMOR", "ListMemoryCommand"),
@@ -42,6 +43,24 @@ class ClawbotCommandRegistry:
                         value={"command": command_text, "result": result},
                         context="operation_log",
                     )
+                    cmd_obj = self._commands[command_key]
+                    try:
+                        parsed = cmd_obj.parse_one_line_command(command_text)
+                        errors = cmd_obj.calculate_errors(parsed["expected"], parsed["actual"])
+                        memory.remember(
+                            key="calibration_history",
+                            value={
+                                "command": command_text,
+                                "max_error": round(errors["max"], 4),
+                                "mean_error": round(errors["mean"], 4),
+                                "rms_error": round(errors["rms"], 4),
+                                "precision": parsed["precision"],
+                                "n_points": len(parsed["actual"]),
+                            },
+                            context="system_calibration",
+                        )
+                    except Exception:
+                        pass
                 return result
 
         return (
@@ -80,9 +99,11 @@ def build_bot():
     from src.commands.science_analysis import setup as setup_science
     from src.commands.memory_commands import setup as setup_memory
     from src.commands.help_command import setup as setup_help
+    from src.commands.history_command import setup as setup_history
     setup_science(bot)
     setup_memory(bot)
     setup_help(bot)
+    setup_history(bot)
 
     return bot
 
