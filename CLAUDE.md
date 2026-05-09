@@ -21,29 +21,27 @@ One-line text commands are parsed from natural-language-style strings (e.g., `AN
 
 ### Memory System
 
-Persistent state is stored in `memory_system/clawbot_memory.json` (this file is created at runtime; `memory_system/sample_memories.json` is the reference example).
+`src/memory.py` is the read/write layer. Persistent state is stored in `memory_system/clawbot_memory.json` (auto-created at runtime; `memory_system/sample_memories.json` is the reference example).
 
-**Schema** (defined in `memory syte`):
+**Public API:**
 
-```json
-{
-  "next_id": 4,
-  "memories": [
-    {
-      "id": 1,
-      "timestamp": "2024-02-08T14:30:45Z",
-      "key": "user_favorite_color",
-      "value": "blue",
-      "context": "user_preference"
-    }
-  ]
-}
+```python
+from src import memory
+
+memory.remember(key, value, context="operation_log")  # write
+memory.recall(key)           # most recent entry for key
+memory.recall_all(key)       # all entries for key
+memory.recall_by_context(context)  # all entries for a context
+memory.forget(key)           # delete all entries for key
+memory.all_memories()        # full list
 ```
 
-- `key`: snake_case, descriptive identifier
-- `value`: any JSON-compatible type (string, number, boolean, array, object)
-- `timestamp`: ISO 8601, always UTC
+- `key`: snake_case identifier
+- `value`: any JSON-compatible type
+- `timestamp`: ISO 8601, UTC (set automatically)
 - `context`: one of `user_preference`, `system_calibration`, `error_log`, `operation_log`, `conversation`
+
+Each ANALYZE run automatically saves to memory under key `last_analysis`. Type `RECALL` in the bot to retrieve it.
 
 ### Science Analysis Command (`src/commands/science_analysis.py`)
 

@@ -1,6 +1,7 @@
-import json
 import os
 import sys
+
+from src import memory
 
 
 class ClawbotCommandRegistry:
@@ -15,16 +16,36 @@ class ClawbotCommandRegistry:
         upper = command_text.strip().upper()
         if upper.startswith("ANALYZE"):
             key = "ScienceAnalysisCommand"
+        elif upper.startswith("RECALL"):
+            return self._handle_recall(command_text)
         else:
             return f"Unknown command. Available: {', '.join(self._commands)}"
 
         if key not in self._commands:
             return f"Command '{key}' is registered but not loaded."
 
-        return self._commands[key].execute(command_text)
+        result = self._commands[key].execute(command_text)
+
+        memory.remember(
+            key="last_analysis",
+            value={"command": command_text, "result": result},
+            context="operation_log",
+        )
+
+        return result
+
+    def _handle_recall(self, command_text):
+        mem = memory.recall("last_analysis")
+        if not mem:
+            return "No previous analysis found in memory."
+        return (
+            f"[Memory #{mem['id']} — {mem['timestamp']}]\n"
+            f"Command : {mem['value']['command']}\n\n"
+            f"{mem['value']['result']}"
+        )
 
     def list_commands(self):
-        return list(self._commands.keys())
+        return list(self._commands)
 
 
 def build_bot():
@@ -38,7 +59,8 @@ def build_bot():
 
 def run_interactive(bot):
     print("Clawbot ready. Type a command or 'quit' to exit.")
-    print(f"Loaded commands: {bot.list_commands()}\n")
+    print(f"Loaded commands: {bot.list_commands()}")
+    print("Special: RECALL — show last saved analysis\n")
 
     while True:
         try:
@@ -53,8 +75,7 @@ def run_interactive(bot):
             print("Shutting down.")
             break
 
-        result = bot.execute(text)
-        print(result)
+        print(bot.execute(text))
         print()
 
 
