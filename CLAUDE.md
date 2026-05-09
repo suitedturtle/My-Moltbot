@@ -51,6 +51,20 @@ Analyzes robot measurement accuracy. Default expected positions: `[0, 25, 50, 75
 
 Computes: absolute errors, z-scores (normalized by precision), movement pattern detection, and a calibration recommendation.
 
+## Running the Bot
+
+```bash
+pip install -r requirements.txt
+
+# Interactive REPL
+python3 main.py
+
+# One-shot command
+python3 main.py "ANALYZE MY CLAWBOT: Expected [0,25,50,75,100] mm → Actual [0.1,24.8,49.9,75.3,100.2] mm ±0.2mm"
+```
+
+`main.py` builds a `ClawbotCommandRegistry`, calls each command module's `setup(bot)` to register commands, then either runs interactively or executes a single command passed as a CLI argument.
+
 ## Development Philosophy
 
 Always execute the next most logical step toward a solid, working foundation. Build in this order of priority:
