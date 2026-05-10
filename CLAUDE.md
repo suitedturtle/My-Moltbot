@@ -155,9 +155,30 @@ Publisher ID: `ca-pub-6496918064862756`. Auto-ads script is in both template `<h
 - [x] Meta description + Open Graph tags on jobs.html
 - [x] JSON-LD JobPosting structured data on jobs.html (enables Google Jobs integration)
 
+## Deploying to Render
+
+The repo includes `render.yaml` which configures a Render web service automatically.
+
+**One-time setup steps:**
+1. Go to https://render.com and sign up (free)
+2. Click **New → Web Service** → connect your GitHub account → select `suitedturtle/My-Moltbot`
+3. Render detects `render.yaml` automatically — click **Deploy**
+4. In the Render dashboard → Environment, add these secret vars manually:
+   - `SMTP_USER` — your Gmail address
+   - `SMTP_PASSWORD` — your Gmail App Password (not your login password)
+   - `FROM_EMAIL` — same as SMTP_USER
+5. Under **Settings → Custom Domains**, add `calcojobs.com` and follow Render's DNS instructions
+
+**Start command:** `gunicorn web.app:app`
+
+**Important note on data persistence:** Render's free tier has an ephemeral filesystem — the `memory_system/` JSON files (clawbot_memory.json, email_subscribers.json) reset on each new deploy. For now this is fine for launch. Long-term, migrate subscribers to a database (SQLite on a paid Render disk, or a free Postgres instance).
+
 ## Roadmap (next steps)
 
 1. ✅ Weekly digest email includes top 5 job listings
 2. ✅ About page (`/about`) — explains site purpose, good for AdSense review
 3. ✅ Expand job listings: added Software & Embedded, Healthcare & Medical, Logistics & Warehouse (50 total)
-4. Submit sitemap to Google Search Console once site is live at calcojobs.com
+4. ✅ Privacy Policy page — required for AdSense
+5. ✅ Render deployment config (`render.yaml` + gunicorn)
+6. Submit sitemap to Google Search Console once site is live at calcojobs.com
+7. Migrate email subscribers to persistent storage (SQLite or Postgres) before going to production

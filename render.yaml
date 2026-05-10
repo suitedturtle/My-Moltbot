@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: calcojobs
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn web.app:app
+    envVars:
+      - key: SITE_NAME
+        value: Calcojobs
+      - key: SITE_URL
+        value: https://calcojobs.com
+      - key: CLAWBOT_SECRET_KEY
+        generateValue: true
