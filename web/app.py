@@ -86,6 +86,11 @@ def jobs():
     )
 
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -103,9 +108,10 @@ def sitemap_xml():
     today    = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     urls = [
-        {"loc": SITE_URL,           "priority": "1.0", "changefreq": "weekly"},
-        {"loc": f"{SITE_URL}/jobs", "priority": "0.9", "changefreq": "weekly"},
-        {"loc": f"{SITE_URL}/about","priority": "0.7", "changefreq": "monthly"},
+        {"loc": SITE_URL,              "priority": "1.0", "changefreq": "weekly"},
+        {"loc": f"{SITE_URL}/jobs",    "priority": "0.9", "changefreq": "weekly"},
+        {"loc": f"{SITE_URL}/about",   "priority": "0.7", "changefreq": "monthly"},
+        {"loc": f"{SITE_URL}/privacy", "priority": "0.3", "changefreq": "yearly"},
     ]
     for job in all_jobs:
         urls.append({
