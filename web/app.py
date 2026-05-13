@@ -153,6 +153,22 @@ def run_command():
     return jsonify({"result": result})
 
 
+@app.route("/admin/scrape", methods=["POST"])
+def admin_scrape():
+    key = request.headers.get("X-Admin-Key", "")
+    if key != app.secret_key:
+        return jsonify({"error": "Unauthorized"}), 401
+    import threading
+    from scrapers.run import run_all
+    def _run():
+        try:
+            run_all()
+        except Exception as e:
+            print(f"[scrape] error: {e}")
+    threading.Thread(target=_run, daemon=True).start()
+    return jsonify({"ok": True, "message": "Scraper started in background"})
+
+
 @app.route("/subscribe", methods=["POST"])
 def subscribe():
     data  = request.get_json() or {}
