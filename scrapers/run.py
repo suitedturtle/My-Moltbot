@@ -58,3 +58,4 @@ def run_all() -> dict:
 if __name__ == "__main__":
     result = run_all()
     print(result)
+    sys.exit(0)
