@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, redirect
 
 from main import build_bot
 from src import memory
@@ -58,6 +58,11 @@ def _valid_email(email):
 
 @app.route("/")
 def index():
+    return redirect("/jobs")
+
+
+@app.route("/dashboard")
+def dashboard():
     memories      = memory.all_memories()
     last_analysis = memory.recall("last_analysis")
     last_error    = memory.recall("last_error")
