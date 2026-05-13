@@ -252,21 +252,7 @@
   <div class="jobs-col">
     <div class="result-count" id="result-count"><strong>{{ job_count }}</strong> jobs found</div>
 
-    {% for job in jobs %}
-
-    {# Insert an ad unit after every 8th job card #}
-    {% if loop.index == 9 %}
-    <div class="ad-inline">
-      <div class="ad-slot">
-        <ins class="adsbygoogle" style="display:block"
-             data-ad-client="ca-pub-6496918064862756" data-ad-slot="auto"
-             data-ad-format="auto" data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
-    </div>
-    {% endif %}
-
-    <div class="job-card"
+    {% for job in jobs %}<div class="job-card"
          id="job-{{ job.id }}"
          data-title="{{ job.title | lower }}"
          data-company="{{ job.company | lower }}"
