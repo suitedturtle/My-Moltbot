@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## User Preferences
+
+- **Links:** Always provide URLs in plain copy-paste text format (e.g. https://example.com), NOT as markdown hyperlinks (e.g. never [title](url)). The user finds plain URLs much easier to copy and use.
+
 ## Project Overview
 
 My-Moltbot (also referred to as "Clawbot" in the codebase) is a Python-based bot for controlling and monitoring a physical clawbot/robot. It features a command system and a JSON-based persistent memory system.
