@@ -1,3 +1,14 @@
+// Inject watermark text into each card visual
+document.querySelectorAll('.card-visual').forEach(el => {
+  const name = el.getAttribute('data-name');
+  if (name) {
+    const wm = document.createElement('div');
+    wm.className = 'card-watermark-text';
+    wm.textContent = name;
+    el.insertBefore(wm, el.firstChild);
+  }
+});
+
 // Mobile menu toggle
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobileMenu');

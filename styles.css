@@ -116,8 +116,10 @@ a { color: inherit; text-decoration: none; }
   text-decoration: none;
 }
 .logo-icon {
-  font-size: 1.6rem;
+  width: 28px;
+  height: 38px;
   color: var(--gold);
+  flex-shrink: 0;
 }
 .logo-text {
   font-family: var(--font-head);
@@ -399,124 +401,172 @@ a { color: inherit; text-decoration: none; }
 /* ---- PRODUCT GRID ---- */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 .product-card {
-  background: var(--card);
-  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.25s, box-shadow 0.25s;
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-.product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-}
+.product-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,0.7); }
 .product-card.hidden { display: none; }
-.product-img {
-  position: relative;
-  height: 240px;
+
+/* --- Card visual area --- */
+.card-visual {
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.product-img-inner {
-  text-align: center;
-  z-index: 1;
-}
-.singlet-icon {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 0 12px rgba(255,255,255,0.3));
-}
-.singlet-name {
-  font-family: var(--font-head);
-  font-size: 1.4rem;
-  letter-spacing: 3px;
-  color: var(--white);
-  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  height: 340px;
+  padding: 24px;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-/* Product color themes */
-.lava-forged {
-  background: linear-gradient(135deg, #1a0505 0%, #8b1a1a 40%, #d45500 80%, #ff8c00 100%);
-}
-.blackout-patriot {
-  background: linear-gradient(135deg, #050510 0%, #0a0a2a 40%, #1a1a6e 70%, #c0392b 100%);
-}
-.patriot-ghost {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #7f8c8d 70%, #ecf0f1 100%);
-}
-.tankshark {
-  background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 40%, #2980b9 70%, #85c1e9 100%);
-}
-.savage-unit {
-  background: linear-gradient(135deg, #1a0a00 0%, #4a1500 40%, #8b2500 70%, #ff4500 100%);
-}
-.sweet-savage {
-  background: linear-gradient(135deg, #1a0010 0%, #6a0030 40%, #c0006a 70%, #ff69b4 100%);
-}
-.blue-ghost {
-  background: linear-gradient(135deg, #05050a 0%, #0d1b3e 40%, #003166 70%, #4169e1 100%);
-}
-.spartan-armor {
-  background: linear-gradient(135deg, #0d0d0d 0%, #2c2c2c 40%, #8b7536 70%, #d4a017 100%);
-}
-.pink-fury {
-  background: linear-gradient(135deg, #1a0510 0%, #6b0030 40%, #e91e63 70%, #ff80ab 100%);
-}
-
-.product-badge {
+/* Stripe texture overlay */
+.card-visual::before {
+  content: '';
   position: absolute;
-  top: 12px;
-  left: 12px;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 12px,
+    rgba(0,0,0,0.06) 12px,
+    rgba(0,0,0,0.06) 14px
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Vignette — darkens bottom so text pops */
+.card-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Watermark design name */
+.card-visual [data-name]::before { display: none; }
+.card-watermark-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  font-family: var(--font-head);
+  font-size: 5rem;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.07);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+}
+
+/* Logo mark — SVG sword+diamond via CSS background */
+.card-logo-mark {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 50px;
+  z-index: 2;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 60 82' xmlns='http://www.w3.org/2000/svg' fill='white'%3E%3Cpath d='M30,6 C15,6 5,17 5,32 C5,49 16,62 30,62 C40,62 48,57 53,50 L53,34 L31,34 L31,41 L46,41 L46,49 C42,53 37,55 30,55 C20,55 12,46 12,32 C12,18 20,13 30,13 C38,13 44,17 47,23 L53,20 C49,12 40,6 30,6 Z'/%3E%3Cellipse cx='30' cy='2' rx='5' ry='3.5'/%3E%3Crect x='28' y='5' width='4' height='15' rx='2'/%3E%3Crect x='18' y='20' width='24' height='4.5' rx='2'/%3E%3Cpolygon points='27.5,62 32.5,62 31,77 30,80 29,77'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  transition: opacity 0.2s;
+}
+.card-visual:hover .card-logo-mark { opacity: 0.9; }
+
+/* Pill badges */
+.card-pill {
+  position: absolute;
+  top: 16px;
+  left: 16px;
   background: var(--gold);
   color: #000;
   font-family: var(--font-head);
-  letter-spacing: 1px;
   font-size: 0.75rem;
-  padding: 4px 10px;
+  letter-spacing: 2px;
+  padding: 4px 12px;
   border-radius: 2px;
+  z-index: 3;
+}
+.new-pill { background: var(--red); color: var(--white); }
+.womens-pill { background: #c2185b; color: var(--white); }
+
+/* Card text content */
+.card-content {
+  position: relative;
   z-index: 2;
 }
-.product-badge.new { background: var(--red); color: var(--white); }
-.product-badge.womens-badge { background: #c2185b; color: var(--white); }
-
-.product-info { padding: 20px; }
-.product-info h3 {
-  font-family: var(--font-head);
-  font-size: 1.2rem;
+.card-cat {
+  font-size: 0.75rem;
   letter-spacing: 1px;
-  margin-bottom: 4px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 6px;
+  text-transform: uppercase;
 }
-.product-detail { font-size: 0.85rem; color: var(--gray); margin-bottom: 16px; }
-.product-footer {
+.card-name {
+  font-family: var(--font-head);
+  font-size: 2.4rem;
+  line-height: 0.9;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+
+/* Card footer */
+.card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
 }
-.product-price {
+.card-price {
   font-family: var(--font-head);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: var(--gold);
-}
-.btn-product {
-  font-family: var(--font-head);
   letter-spacing: 1px;
+}
+.btn-shop {
+  font-family: var(--font-head);
+  letter-spacing: 2px;
   font-size: 0.85rem;
   background: var(--red);
   color: var(--white);
-  padding: 8px 18px;
+  padding: 9px 20px;
   border-radius: var(--radius);
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.15s;
+  text-decoration: none;
 }
-.btn-product:hover { background: var(--red-light); }
+.btn-shop:hover { background: var(--red-light); transform: translateX(2px); }
+
+/* Product color themes */
+.lava-forged   { background: linear-gradient(160deg, #0d0300 0%, #6b1a00 35%, #c94a00 70%, #ff6a00 100%); }
+.blackout-patriot { background: linear-gradient(160deg, #03030f 0%, #0b0b30 35%, #12126e 60%, #8b1a1a 100%); }
+.patriot-ghost { background: linear-gradient(160deg, #080c14 0%, #141e30 40%, #2c3a54 70%, #7b8fa6 100%); }
+.tankshark     { background: linear-gradient(160deg, #030c18 0%, #0a2040 35%, #144d7a 65%, #1e8ec0 100%); }
+.savage-unit   { background: linear-gradient(160deg, #0d0500 0%, #3a0f00 35%, #7a2000 65%, #d43500 100%); }
+.sweet-savage  { background: linear-gradient(160deg, #0d0008 0%, #5a0025 35%, #b8005a 65%, #ff4fa0 100%); }
+.blue-ghost    { background: linear-gradient(160deg, #02020a 0%, #080f28 35%, #0e2060 65%, #2545c8 100%); }
+.crimson-valor { background: linear-gradient(160deg, #0a0000 0%, #4a0505 35%, #8b0000 65%, #cc1111 100%); }
+.spartan-armor { background: linear-gradient(160deg, #080800 0%, #262200 35%, #6b5a00 65%, #c4960a 100%); }
+.pink-fury     { background: linear-gradient(160deg, #0d0009 0%, #5a0030 35%, #b8006e 65%, #ff3fa0 100%); }
 
 .shop-all-cta {
   text-align: center;
-  margin-top: 48px;
+  margin-top: 56px;
 }
 
 /* ---- FEATURES ---- */
