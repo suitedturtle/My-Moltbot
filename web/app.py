@@ -91,6 +91,16 @@ def jobs():
     )
 
 
+@app.route("/jobs/<int:job_id>")
+def job_detail(job_id):
+    all_jobs = _load_jobs()
+    job = next((j for j in all_jobs if j["id"] == job_id), None)
+    if not job:
+        return redirect("/jobs")
+    related = [j for j in all_jobs if j.get("category") == job.get("category") and j["id"] != job_id][:4]
+    return render_template("job_detail.html", job=job, related=related, site_url=SITE_URL)
+
+
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
@@ -120,8 +130,8 @@ def sitemap_xml():
     ]
     for job in all_jobs:
         urls.append({
-            "loc": f"{SITE_URL}/jobs#job-{job['id']}",
-            "priority": "0.6",
+            "loc": f"{SITE_URL}/jobs/{job['id']}",
+            "priority": "0.7",
             "changefreq": "weekly",
             "lastmod": job.get("posted", today),
         })
