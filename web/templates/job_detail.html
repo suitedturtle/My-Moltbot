@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ job.title }} at {{ job.company }} — {{ job.city }}, CA | Calcojobs</title>
+  <meta name="description" content="{{ job.description[:155] }}">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="{{ site_url }}/jobs/{{ job.id }}">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{{ job.title }} — {{ job.company }}">
+  <meta property="og:description" content="{{ job.description[:155] }}">
+  <meta property="og:url" content="{{ site_url }}/jobs/{{ job.id }}">
+  <meta property="og:type" content="website">
+
+  <!-- JSON-LD Job Posting -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "{{ job.title }}",
+    "description": "{{ job.description | replace('"', '\\"') }}",
+    "datePosted": "{{ job.posted }}",
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "{{ job.company }}"
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "{{ job.city }}",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    },
+    "employmentType": "{{ job.type | upper | replace('-', '_') }}",
+    "baseSalary": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": {
+        "@type": "QuantitativeValue",
+        "value": "{{ job.salary }}",
+        "unitText": "YEAR"
+      }
+    }
+  }
+  </script>
+
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6496918064862756" crossorigin="anonymous"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+    header { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 14px 32px; display: flex; align-items: center; gap: 12px; }
+    header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; flex: 1; }
+    .header-nav { display: flex; gap: 4px; align-items: center; }
+    .nav-link { color: #94a3b8; font-size: 0.82rem; text-decoration: none; padding: 5px 10px; border-radius: 5px; transition: color 0.15s; }
+    .nav-link:hover { color: #a78bfa; }
+    .nav-link.active { color: #a78bfa; font-weight: 600; }
+    .header-sub-btn { background: #7c3aed; color: #fff; border: none; border-radius: 6px; padding: 7px 16px; font-size: 0.82rem; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+    .header-sub-btn:hover { background: #6d28d9; }
+
+    .page { max-width: 900px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; }
+    @media (max-width: 700px) { .page { grid-template-columns: 1fr; } }
+
+    .breadcrumb { max-width: 900px; margin: 20px auto 0; padding: 0 20px; font-size: 0.78rem; color: #475569; }
+    .breadcrumb a { color: #7c3aed; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* Main card */
+    .job-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 14px; padding: 32px; }
+    .job-header { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 24px; }
+    .job-logo { width: 56px; height: 56px; background: linear-gradient(135deg, #4c1d95, #1e40af); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .job-title { font-size: 1.4rem; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+    .job-company { font-size: 1rem; color: #a78bfa; font-weight: 500; }
+
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .badge { font-size: 0.75rem; font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid; }
+    .badge-city     { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    .badge-salary   { background: #052e16; border-color: #14532d; color: #86efac; }
+    .badge-type     { background: #1e1a3b; border-color: #4c1d95; color: #c4b5fd; }
+    .badge-robotics { background: #1e1a3b; border-color: #4c1d95; color: #c4b5fd; }
+    .badge-software { background: #0c1a2e; border-color: #1e40af; color: #93c5fd; }
+    .badge-health   { background: #0c1f1a; border-color: #065f46; color: #6ee7b7; }
+    .badge-logistics{ background: #1c1407; border-color: #78350f; color: #fcd34d; }
+    .badge-law      { background: #1a0c0c; border-color: #7f1d1d; color: #fca5a5; }
+
+    .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #475569; margin-bottom: 10px; }
+    .description { color: #94a3b8; font-size: 0.9rem; line-height: 1.8; margin-bottom: 28px; white-space: pre-line; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+    .tag { font-size: 0.72rem; background: #2d3148; color: #94a3b8; padding: 3px 10px; border-radius: 5px; }
+
+    .apply-btn { display: inline-block; background: #7c3aed; color: #fff; padding: 13px 32px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .apply-btn:hover { background: #6d28d9; }
+    .back-link { display: inline-block; margin-left: 16px; color: #64748b; font-size: 0.85rem; text-decoration: none; }
+    .back-link:hover { color: #94a3b8; }
+
+    /* Sidebar */
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+    .sidebar-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 20px; }
+    .sidebar-card h3 { font-size: 0.85rem; font-weight: 600; color: #a78bfa; margin-bottom: 14px; }
+
+    .related-job { padding: 10px 0; border-bottom: 1px solid #2d3148; }
+    .related-job:last-child { border-bottom: none; padding-bottom: 0; }
+    .related-job a { color: #e2e8f0; font-size: 0.85rem; font-weight: 500; text-decoration: none; display: block; margin-bottom: 2px; }
+    .related-job a:hover { color: #a78bfa; }
+    .related-job span { font-size: 0.75rem; color: #64748b; }
+
+    .subscribe-form { display: flex; flex-direction: column; gap: 10px; }
+    .subscribe-form p { font-size: 0.8rem; color: #64748b; line-height: 1.6; }
+    .subscribe-input { background: #0f1117; border: 1px solid #2d3148; border-radius: 6px; padding: 9px 12px; color: #e2e8f0; font-size: 0.82rem; outline: none; }
+    .subscribe-input:focus { border-color: #7c3aed; }
+    .subscribe-btn { background: #7c3aed; color: #fff; border: none; border-radius: 6px; padding: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .subscribe-btn:hover { background: #6d28d9; }
+    .sub-msg { font-size: 0.78rem; color: #6ee7b7; display: none; }
+
+    .ad-slot { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Calcojobs</h1>
+  <nav class="header-nav">
+    <a href="/jobs" class="nav-link active">Jobs</a>
+    <a href="/about" class="nav-link">About</a>
+  </nav>
+  <button class="header-sub-btn" onclick="window.location.href='/jobs'">Browse Jobs</button>
+</header>
+
+<div class="breadcrumb">
+  <a href="/jobs">Jobs</a> › <a href="/jobs?category={{ job.category | urlencode }}">{{ job.category }}</a> › {{ job.title }}
+</div>
+
+<div class="page">
+
+  <!-- Main -->
+  <div>
+    <div class="job-card">
+      <div class="job-header">
+        <div class="job-logo">{{ job.company[0] }}</div>
+        <div>
+          <div class="job-title">{{ job.title }}</div>
+          <div class="job-company">{{ job.company }}</div>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <span class="badge badge-city">{{ job.city }}, CA</span>
+        {% if job.category == "Software & Embedded" %}
+        <span class="badge badge-software">{{ job.category }}</span>
+        {% elif job.category == "Healthcare & Medical" %}
+        <span class="badge badge-health">{{ job.category }}</span>
+        {% elif job.category == "Logistics & Warehouse" %}
+        <span class="badge badge-logistics">{{ job.category }}</span>
+        {% elif job.category == "Law Enforcement & Security" %}
+        <span class="badge badge-law">{{ job.category }}</span>
+        {% else %}
+        <span class="badge badge-robotics">{{ job.category }}</span>
+        {% endif %}
+        <span class="badge badge-salary">{{ job.salary }}</span>
+        <span class="badge badge-type">{{ job.type }}</span>
+      </div>
+
+      <div class="section-label">About this role</div>
+      <div class="description">{{ job.description }}</div>
+
+      <div class="section-label">Skills & Keywords</div>
+      <div class="tags">
+        {% for tag in job.tags %}
+        <span class="tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+
+      <div>
+        <a href="{{ job.url }}" target="_blank" rel="noopener noreferrer" class="apply-btn">Apply Now →</a>
+        <a href="/jobs" class="back-link">← Back to all jobs</a>
+      </div>
+    </div>
+
+    <div class="ad-slot" style="margin-top:20px;">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6496918064862756"
+           data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    {% if related %}
+    <div class="sidebar-card">
+      <h3>More {{ job.category }} Jobs</h3>
+      {% for r in related %}
+      <div class="related-job">
+        <a href="/jobs/{{ r.id }}">{{ r.title }}</a>
+        <span>{{ r.company }} · {{ r.city }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="sidebar-card">
+      <h3>Get Weekly Job Alerts</h3>
+      <div class="subscribe-form">
+        <p>New {{ job.category }} jobs delivered to your inbox every week. Free, no spam.</p>
+        <input class="subscribe-input" id="sub-email" type="email" placeholder="your@email.com">
+        <button class="subscribe-btn" onclick="doSubscribe()">Notify Me</button>
+        <div class="sub-msg" id="sub-msg"></div>
+      </div>
+    </div>
+
+    <div class="ad-slot">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6496918064862756"
+           data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+  </aside>
+</div>
+
+<script>
+  async function doSubscribe() {
+    const email = document.getElementById('sub-email').value.trim();
+    const msg   = document.getElementById('sub-msg');
+    if (!email) return;
+    const r = await fetch('/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email})
+    });
+    const data = await r.json();
+    msg.textContent = data.message || (data.error || 'Done!');
+    msg.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

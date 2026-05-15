@@ -262,7 +262,7 @@
          data-category="{{ job.category }}">
       <div class="job-logo">{{ job.company[0] }}</div>
       <div class="job-body">
-        <div class="job-title">{{ job.title }}</div>
+        <a href="/jobs/{{ job.id }}" style="text-decoration:none;color:inherit;"><div class="job-title">{{ job.title }}</div></a>
         <div class="job-company">{{ job.company }}</div>
         <div class="job-meta">
           <span class="meta-pill pill-city">{{ job.city }}, CA</span>
@@ -287,7 +287,7 @@
             {% endfor %}
           </div>
           <span class="posted">{{ job.posted }}</span>
-          <a class="apply-btn" href="{{ job.url }}" target="_blank" rel="noopener noreferrer">Apply →</a>
+          <a class="apply-btn" href="/jobs/{{ job.id }}">View Job →</a>
         </div>
       </div>
     </div>
