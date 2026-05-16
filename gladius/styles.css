@@ -118,11 +118,11 @@ a { color: inherit; text-decoration: none; }
 .logo-emblem {
   flex-shrink: 0;
 }
-.logo-icon {
-  width: 28px;
-  height: 42px;
-  color: var(--gold);
+.logo-img {
+  height: 44px;
+  width: auto;
   display: block;
+  object-fit: contain;
 }
 .logo-wordmark {
   display: flex;
