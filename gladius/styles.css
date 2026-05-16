@@ -115,19 +115,30 @@ a { color: inherit; text-decoration: none; }
   gap: 10px;
   text-decoration: none;
 }
+.logo-emblem {
+  flex-shrink: 0;
+}
 .logo-icon {
   width: 28px;
   height: 38px;
   color: var(--gold);
-  flex-shrink: 0;
+  display: block;
 }
-.logo-text {
+.logo-wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.logo-brand {
   font-family: var(--font-head);
   font-size: 1.3rem;
   letter-spacing: 3px;
   color: var(--white);
 }
 .logo-sub {
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
   color: var(--gold);
 }
 .nav-links {
