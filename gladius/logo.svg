@@ -1,0 +1,24 @@
+<svg viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg" fill="white">
+  <!-- Shield G body: chamfered top corners -->
+  <path d="M 24 46 L 76 46 L 84 56 L 16 56 Z"/>
+  <!-- Left arm: thick C, outer straight, inner straight, bottom curves -->
+  <path d="M 16 56 L 16 97 Q 16 122 50 134 L 50 126 Q 24 116 24 97 L 24 56 Z"/>
+  <!-- Right arm: top segment (above G gap) -->
+  <rect x="76" y="56" width="8" height="25"/>
+  <!-- G crossbar: extends inward past center -->
+  <rect x="54" y="95" width="30" height="8"/>
+  <!-- Right arm: bottom segment -->
+  <path d="M 76 103 L 84 103 Q 84 122 50 134 L 50 126 Q 76 116 76 103 Z"/>
+
+  <!-- Sword: drawn on top of shield -->
+  <!-- Pommel ball -->
+  <ellipse cx="50" cy="6" rx="6" ry="6"/>
+  <!-- Pommel collar -->
+  <rect x="43" y="10" width="14" height="14" rx="1"/>
+  <!-- Grip -->
+  <rect x="46.5" y="24" width="7" height="19"/>
+  <!-- Crossguard: wide, matches shield outer width -->
+  <rect x="14" y="43" width="72" height="8" rx="2"/>
+  <!-- Blade: tapers from crossguard through shield to long point below -->
+  <polygon points="46.5,51 53.5,51 51.5,126 50,155 48.5,126"/>
+</svg>
