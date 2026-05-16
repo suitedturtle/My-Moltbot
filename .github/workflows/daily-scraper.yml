@@ -1,0 +1,15 @@
+name: Daily Job Scraper
+
+on:
+  schedule:
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Clawbot Scraper
+        run: |
+          curl -X POST https://calcojobs.com/admin/scrape \
+            -H "X-Admin-Key: ${{ secrets.CLAWBOT_SECRET_KEY }}"
