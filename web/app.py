@@ -152,6 +152,17 @@ def sitemap_xml():
 
     return Response("\n".join(lines), mimetype="application/xml")
 
+@app.route("/ask", methods=["POST"])
+def ask():
+    data = request.get_json()
+    question = (data or {}).get("question", "").strip()
+    if not question:
+        return jsonify({"error": "No question provided"}), 400
+    from src.claude_brain import ask_claude
+    answer = ask_claude(question)
+    return jsonify({"answer": answer})
+
+
 
 @app.route("/command", methods=["POST"])
 def run_command():
