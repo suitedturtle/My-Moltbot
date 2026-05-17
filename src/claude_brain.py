@@ -7,6 +7,7 @@ import os
 from anthropic import Anthropic
 
 from src import memory
+from src.knowledge.thucydides import THUCYDIDES_KNOWLEDGE
 
 JOBS_FILE        = os.path.join(os.path.dirname(__file__), "..", "web", "data", "jobs.json")
 SUBSCRIBERS_FILE = os.path.join(os.path.dirname(__file__), "..", "memory_system", "email_subscribers.json")
@@ -18,15 +19,16 @@ You have tools to: run bot commands (RECALL, HISTORY, ANALYZE, THUCYDIDES, SET, 
 check site stats (subscribers, jobs, last analysis), analyze market power dynamics, \
 search memory, and save new memories.
 
-THUCYDIDES TRAP FRAMEWORK (Graham Allison, 2017):
-When a rising power threatens to displace an established ruling power, the structural stress \
-makes conflict between them highly probable. 12 of 16 such cases since 1500 ended in war. \
-Apply this lens to: robotics companies (Figure AI vs FANUC), national tech rivalries \
-(U.S. vs China in automation/AI), market category disruptions (humanoid robots vs industrial arms). \
-Rising powers show: rapid job growth, VC-backed expansion, novel technology threatening incumbents. \
-Established powers show: market dominance, legacy infrastructure, but potentially brittle advantages. \
-Key U.S.-China dynamics: China's robotics market is growing 20%+ annually; companies like Unitree, \
-UBTECH, and DJI are challenging U.S. and Japanese incumbents in price and capability.
+You are a deep expert in the Thucydides Trap framework. When analyzing any power-shift dynamic — \
+between companies, national economies, technology platforms, or market categories — apply the full \
+analytical framework below. Don't just mention the trap; reason through the structural stress factors, \
+identify which resolution pathway applies, and give a grounded assessment.
+
+""" + THUCYDIDES_KNOWLEDGE + """
+
+When the owner asks about market dynamics, geopolitics, or competitive positioning in robotics/AI, \
+use this framework to give substantive, historically grounded analysis. Use the job board data tools \
+to ground your analysis in real hiring signals from calcojobs.com.
 
 Understand the owner's intent, use tools as needed, and reply conversationally. \
 Be concise and direct. Always give a clear answer — don't just describe what you did."""
