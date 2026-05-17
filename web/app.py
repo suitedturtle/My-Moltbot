@@ -13,13 +13,11 @@ from flask import Flask, render_template, request, jsonify, Response, redirect
 
 from main import build_bot
 from src import memory
-from src.email_listener import start_listener
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("CLAWBOT_SECRET_KEY", "clawbot-dev-secret-change-in-prod")
 
 bot = build_bot()
-start_listener(bot)
 
 JOBS_FILE        = os.path.join(os.path.dirname(__file__), "data", "jobs.json")
 SUBSCRIBERS_FILE = os.path.join(os.path.dirname(__file__), "..", "memory_system", "email_subscribers.json")
