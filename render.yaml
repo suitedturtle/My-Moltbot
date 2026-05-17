@@ -26,6 +26,8 @@ services:
         sync: false
       - key: EMAIL_POLL_MINUTES
         value: "5"
+      - key: ANTHROPIC_API_KEY
+        sync: false
       # Job scraper APIs — add values in Render dashboard
       - key: USAJOBS_API_KEY
         sync: false
@@ -56,6 +58,8 @@ services:
         sync: false
       - key: EMAIL_POLL_MINUTES
         value: "5"
+      - key: ANTHROPIC_API_KEY
+        sync: false
 
   - type: cron
     name: calcojobs-weekly-scrape

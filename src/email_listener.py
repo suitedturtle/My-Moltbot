@@ -124,12 +124,17 @@ def check_inbox(bot):
                 mail.store(num, "+FLAGS", "\\Seen")
                 continue
 
-            # Use only the first line as the command (ignore email signatures)
-            command = body.splitlines()[0].strip()
-            print(f"[email_listener] executing: {command}")
+            print(f"[email_listener] processing email from {sender}")
 
             try:
-                result = bot.execute(command)
+                if os.environ.get("ANTHROPIC_API_KEY"):
+                    from src.claude_brain import process_email
+                    result = process_email(bot, body)
+                else:
+                    # Fallback: first line as a rigid command
+                    command = body.splitlines()[0].strip()
+                    print(f"[email_listener] no ANTHROPIC_API_KEY — executing: {command}")
+                    result = bot.execute(command)
             except Exception as e:
                 result = f"Error: {e}"
 
