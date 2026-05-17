@@ -14,8 +14,19 @@ SUBSCRIBERS_FILE = os.path.join(os.path.dirname(__file__), "..", "memory_system"
 SYSTEM_PROMPT = """You are Clawbot, an intelligent assistant for the owner of calcojobs.com — \
 a California robotics and automation job board. You respond to email commands from your owner.
 
-You have tools to: run bot commands (RECALL, HISTORY, ANALYZE, SET, GET, LIST MEMORIES, FORGET), \
-check site stats (subscribers, jobs, last analysis), search memory, and save new memories.
+You have tools to: run bot commands (RECALL, HISTORY, ANALYZE, THUCYDIDES, SET, GET, LIST MEMORIES, FORGET), \
+check site stats (subscribers, jobs, last analysis), analyze market power dynamics, \
+search memory, and save new memories.
+
+THUCYDIDES TRAP FRAMEWORK (Graham Allison, 2017):
+When a rising power threatens to displace an established ruling power, the structural stress \
+makes conflict between them highly probable. 12 of 16 such cases since 1500 ended in war. \
+Apply this lens to: robotics companies (Figure AI vs FANUC), national tech rivalries \
+(U.S. vs China in automation/AI), market category disruptions (humanoid robots vs industrial arms). \
+Rising powers show: rapid job growth, VC-backed expansion, novel technology threatening incumbents. \
+Established powers show: market dominance, legacy infrastructure, but potentially brittle advantages. \
+Key U.S.-China dynamics: China's robotics market is growing 20%+ annually; companies like Unitree, \
+UBTECH, and DJI are challenging U.S. and Japanese incumbents in price and capability.
 
 Understand the owner's intent, use tools as needed, and reply conversationally. \
 Be concise and direct. Always give a clear answer — don't just describe what you did."""
@@ -59,6 +70,23 @@ TOOLS = [
                         "error_log", "operation_log", "conversation",
                     ],
                 },
+            },
+        },
+    },
+    {
+        "name": "analyze_market_power",
+        "description": (
+            "Analyze the calcojobs job market through the Thucydides Trap lens. "
+            "Returns established incumbents vs rising challengers by job count, "
+            "category dominance, and geopolitical dynamics (U.S. vs China)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "description": "Filter to a job category (optional), e.g. 'Robotics & Automation'",
+                }
             },
         },
     },
@@ -123,6 +151,39 @@ def _run_tool(bot, name: str, inputs: dict) -> str:
         else:
             entries = memory.all_memories()[-20:]
         return json.dumps(entries, indent=2)
+
+    if name == "analyze_market_power":
+        from collections import Counter
+        CHINESE_COMPANIES = {"DJI", "Unitree", "UBTECH", "Meituan", "Geely", "BYD",
+                             "Huawei", "Xiaomi", "Horizon Robotics"}
+        RISING = {"Figure AI", "Apptronik", "1X Technologies", "Agility Robotics",
+                  "Sanctuary AI", "Skydio", "Nuro", "Viam", "Unitree", "UBTECH",
+                  "Horizon Robotics", "Nauticus Robotics", "Overland AI"}
+        try:
+            jobs = json.load(open(JOBS_FILE)) if os.path.exists(JOBS_FILE) else []
+            cat_filter = inputs.get("category", "").lower()
+            if cat_filter:
+                jobs = [j for j in jobs if cat_filter in j.get("category", "").lower()]
+            company_counts = Counter(j.get("company", "Unknown") for j in jobs)
+            top = company_counts.most_common(20)
+            result = {
+                "total_jobs_analyzed": len(jobs),
+                "established_powers": [
+                    {"company": c, "jobs": n} for c, n in top
+                    if c not in RISING and n > 1
+                ][:8],
+                "rising_challengers": [
+                    {"company": c, "jobs": n, "chinese": c in CHINESE_COMPANIES}
+                    for c, n in top if c in RISING
+                ],
+                "chinese_presence": [
+                    {"company": c, "jobs": n} for c, n in top if c in CHINESE_COMPANIES
+                ],
+                "categories": dict(Counter(j.get("category", "Other") for j in jobs)),
+            }
+        except Exception as e:
+            result = {"error": str(e)}
+        return json.dumps(result, indent=2)
 
     if name == "save_memory":
         entry = memory.remember(

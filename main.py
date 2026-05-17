@@ -5,13 +5,14 @@ from src import memory
 
 
 COMMAND_ROUTING = [
-    ("ANALYZE",    "ScienceAnalysisCommand"),
-    ("HISTORY",    "HistoryCommand"),
-    ("SET",        "SetMemoryCommand"),
-    ("GET",        "GetMemoryCommand"),
-    ("LIST MEMOR", "ListMemoryCommand"),
-    ("FORGET",     "ForgetMemoryCommand"),
-    ("HELP",       "HelpCommand"),
+    ("ANALYZE",      "ScienceAnalysisCommand"),
+    ("HISTORY",      "HistoryCommand"),
+    ("THUCYDIDES",   "ThucydidesCommand"),
+    ("SET",          "SetMemoryCommand"),
+    ("GET",          "GetMemoryCommand"),
+    ("LIST MEMOR",   "ListMemoryCommand"),
+    ("FORGET",       "ForgetMemoryCommand"),
+    ("HELP",         "HelpCommand"),
 ]
 
 
@@ -100,10 +101,12 @@ def build_bot():
     from src.commands.memory_commands import setup as setup_memory
     from src.commands.help_command import setup as setup_help
     from src.commands.history_command import setup as setup_history
+    from src.commands.thucydides_command import setup as setup_thucydides
     setup_science(bot)
     setup_memory(bot)
     setup_help(bot)
     setup_history(bot)
+    setup_thucydides(bot)
 
     return bot
 
