@@ -8,6 +8,7 @@ from anthropic import Anthropic
 
 from src import memory
 from src.knowledge.thucydides import THUCYDIDES_KNOWLEDGE
+from src.knowledge.memory_schema import MEMORY_SCHEMA_KNOWLEDGE
 
 JOBS_FILE        = os.path.join(os.path.dirname(__file__), "..", "web", "data", "jobs.json")
 SUBSCRIBERS_FILE = os.path.join(os.path.dirname(__file__), "..", "memory_system", "email_subscribers.json")
@@ -24,7 +25,7 @@ between companies, national economies, technology platforms, or market categorie
 analytical framework below. Don't just mention the trap; reason through the structural stress factors, \
 identify which resolution pathway applies, and give a grounded assessment.
 
-""" + THUCYDIDES_KNOWLEDGE + """
+""" + MEMORY_SCHEMA_KNOWLEDGE + THUCYDIDES_KNOWLEDGE + """
 
 When the owner asks about market dynamics, geopolitics, or competitive positioning in robotics/AI, \
 use this framework to give substantive, historically grounded analysis. Use the job board data tools \
